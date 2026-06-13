@@ -1,6 +1,4 @@
 {
-  "buildCommand": "cd kalaam-app && npm run build",
-  "outputDirectory": "kalaam-app/dist",
   "rewrites": [
     {
       "source": "/(.*)",
