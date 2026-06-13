@@ -1,16 +1,54 @@
-# React + Vite
+# Kalaam Library
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Kalaam Library is a poetry club web app built with React and Vite. It includes support for Hindi and English book collections, mobile-number authentication, admin-managed site content, book management, and secure local session handling.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Responsive React SPA built with Vite
+- Mobile/password login and registration
+- First admin can be created at registration time
+- Admin dashboard for managing books, users, and site content
+- Persistent books and settings stored in browser local storage
+- Secure password hashing using Web Crypto PBKDF2
+- Favorite books, book details modal, and search by title/author
 
-## React Compiler
+## Local development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Install dependencies:
 
-## Expanding the ESLint configuration
+```bash
+npm install
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+Preview the production build locally:
+
+```bash
+npm run preview
+```
+
+## Deployment
+
+This is a static single-page app that can be deployed to any static host such as Netlify, Vercel, GitHub Pages, or Firebase Hosting. The `dist/` folder is the production build output.
+
+### Recommended deployment steps
+
+1. Run `npm run build`
+2. Deploy the contents of `dist/`
+
+## Notes
+
+- Authentication and data are simulated in-browser for demo use.
+- To use the admin panel, register the first account with admin rights.
+- Book and settings data persist in browser local storage between sessions.

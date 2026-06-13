@@ -4,23 +4,22 @@ import {
   Search,
   Menu,
   X,
-  Lock,
   Unlock,
   Feather,
   Quote,
   Lightbulb,
   CheckCircle,
-  Instagram,
-  Youtube,
   Loader,
   CheckCircle2,
   XCircle,
   UserCog,
 } from "lucide-react";
+// Instagram and Youtube icons removed (not exported by lucide-react build)
 import { api } from "./api/mockApi";
 import BookRow from "./components/BookRow";
 import BookDetailsModal from "./components/BookDetailsModal";
 import AdminDashboard from "./components/AdminDashboard";
+import LoginModal from "./components/LoginModal";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
@@ -32,10 +31,11 @@ export default function App() {
   const [favorites, setFavorites] = useState([]);
   const [loadingInitial, setLoadingInitial] = useState(true);
 
-  const [jwtToken, setJwtToken] = useState(null);
-  const [adminModalOpen, setAdminModalOpen] = useState(false);
-  const [adminPassword, setAdminPassword] = useState("");
-  const [authLoading, setAuthLoading] = useState(false);
+  const TOKEN_KEY = "kalaam_token";
+  const [authToken, setAuthToken] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [adminTransferMessage, setAdminTransferMessage] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState({ english: "", hindi: "" });
   const [bookModal, setBookModal] = useState({
@@ -73,20 +73,71 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleAdminLogin = async () => {
-    setAuthLoading(true);
-    try {
-      const response = await api.login(adminPassword);
-      setJwtToken(response.token);
-      setAdminModalOpen(false);
-      setAdminPassword("");
-      showToast("Admin portal unlocked.");
-      navigateTo("admin");
-    } catch {
-      showToast("Incorrect password.", "error");
-    } finally {
-      setAuthLoading(false);
+  useEffect(() => {
+    const storedToken =
+      sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
+    if (!storedToken) return;
+
+    if (!sessionStorage.getItem(TOKEN_KEY)) {
+      sessionStorage.setItem(TOKEN_KEY, storedToken);
+      localStorage.removeItem(TOKEN_KEY);
     }
+
+    (async () => {
+      const user = await api.getCurrentUser(storedToken).catch(() => null);
+      if (user) {
+        setAuthToken(storedToken);
+        setCurrentUser(user);
+      } else {
+        sessionStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(TOKEN_KEY);
+      }
+    })();
+  }, [TOKEN_KEY]);
+
+  const handleLogout = async () => {
+    if (!authToken) return;
+    await api.logout(authToken).catch(() => {});
+    setAuthToken(null);
+    setCurrentUser(null);
+    sessionStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    showToast("Logged out.", "info");
+    navigateTo("home");
+  };
+
+  const handleAuthLogin = ({ token, user }) => {
+    setAuthToken(token);
+    setCurrentUser(user);
+    sessionStorage.setItem(TOKEN_KEY, token);
+    localStorage.removeItem(TOKEN_KEY);
+  };
+
+  const refreshCurrentUser = async () => {
+    if (!authToken) return null;
+    const user = await api.getCurrentUser(authToken).catch(() => null);
+    if (!user) {
+      setAuthToken(null);
+      setCurrentUser(null);
+      localStorage.removeItem("kalaam_token");
+      navigateTo("home");
+      showToast("Session ended.", "info");
+      return null;
+    }
+    setCurrentUser(user);
+    if (!user.isAdmin) {
+      navigateTo("home");
+      showToast("You no longer have admin rights.", "info");
+    }
+    return user;
+  };
+
+  const handleAdminTransfer = async (message) => {
+    if (message) {
+      setAdminTransferMessage(message);
+      window.setTimeout(() => setAdminTransferMessage(null), 4000);
+    }
+    await refreshCurrentUser();
   };
 
   const toggleFavorite = (id, e) => {
@@ -136,10 +187,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#4E1A27] text-[#FFD59F] font-sans selection:bg-[#FFD59F] selection:text-[#4E1A27] overflow-x-hidden">
       {/* Header Navigation */}
-      <header
-        style={{ height: "55px" }}
-        className="fixed top-0 left-0 w-full bg-[#FFD59F] text-[#4E1A27] flex items-center justify-between px-3 sm:px-8 z-50 shadow-md"
-      >
+      <header className="fixed top-0 left-0 w-full h-14 bg-[#FFD59F] text-[#4E1A27] flex items-center justify-between px-3 sm:px-8 z-50 shadow-md">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigateTo("home")}
@@ -166,7 +214,7 @@ export default function App() {
               {favorites.length}
             </span>
           </button>
-          {jwtToken && (
+          {currentUser?.isAdmin && (
             <button
               onClick={() => navigateTo("admin")}
               className="px-3 py-1.5 rounded font-bold text-sm bg-red-800 text-[#FFD59F] hover:bg-red-700 transition flex items-center gap-1"
@@ -199,10 +247,16 @@ export default function App() {
         </div>
       </header>
 
+      {adminTransferMessage && (
+        <div className="fixed top-14 left-0 w-full bg-emerald-700 text-white text-center text-xs sm:text-sm font-semibold py-2 z-40 shadow-md">
+          {adminTransferMessage}
+        </div>
+      )}
+
       {/* Mobile Nav Overlay */}
       {isMobileMenuOpen && (
         <div
-          style={{ top: "55px" }}
+          style={{ top: "56px" }}
           className="fixed left-0 w-full bg-[#FFD59F] text-[#4E1A27] z-40 border-t border-[#4E1A27]/20 shadow-lg flex flex-col p-4 space-y-3 md:hidden"
         >
           <button
@@ -217,7 +271,7 @@ export default function App() {
           >
             ABOUT KALAAM
           </button>
-          {jwtToken && (
+          {currentUser?.isAdmin && (
             <button
               onClick={() => navigateTo("admin")}
               className="text-left font-bold py-3 px-4 bg-red-800 text-[#FFD59F] rounded transition"
@@ -230,8 +284,8 @@ export default function App() {
 
       {/* Responsive Left Strip (8px on mobile, 15px on desktop) */}
       <div
-        className="fixed left-0 sm:w-4 w-2 bg-[#FFD59F] z-30 shadow-[2px_0_10px_rgba(0,0,0,0.3)]"
-        style={{ top: "55px", bottom: "55px" }}
+        className="hidden sm:block fixed left-0 sm:w-4 w-2 bg-[#FFD59F] z-30 shadow-[2px_0_10px_rgba(0,0,0,0.3)]"
+        style={{ top: "56px", bottom: "56px" }}
       ></div>
 
       {/* Main Container - Added carefully calculated padding-left to clear the left strip on mobile */}
@@ -275,12 +329,12 @@ export default function App() {
                   <Quote className="absolute -top-2 left-0 md:-left-6 w-6 h-6 md:w-12 md:h-12 text-[#FFD59F]/10 transform -scale-x-100 hidden sm:block" />
                   <Quote className="absolute -bottom-2 right-0 md:-right-6 w-6 h-6 md:w-12 md:h-12 text-[#FFD59F]/10 hidden sm:block" />
 
-                  <p className="font-serif text-xl sm:text-3xl lg:text-4xl leading-relaxed md:leading-[1.7] font-bold text-[#FFD59F] drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)] pt-2 relative z-10 w-full">
+                  <p className="font-serif text-base sm:text-3xl lg:text-4xl leading-relaxed md:leading-[1.7] font-bold text-[#FFD59F] drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)] pt-2 relative z-10 w-full">
                     मैं अकेला ही चला था जानिब-ए-मंज़िल मगर
                     <br />
                     लोग साथ आते गए और कारवाँ बनता गया
                   </p>
-                  <p className="font-serif text-sm sm:text-xl text-[#e6b87e] font-semibold tracking-wider opacity-90 drop-shadow-md pt-1 relative z-10">
+                  <p className="font-serif text-sm sm:text-base text-[#e6b87e] font-semibold tracking-wider opacity-90 drop-shadow-md pt-1 relative z-10">
                     — मजरूह सुल्तानपुरी —
                   </p>
                 </div>
@@ -306,25 +360,22 @@ export default function App() {
               <div className="md:col-span-2 bg-[#6a2536]/40 border border-[#FFD59F]/20 rounded-xl p-5 sm:p-6 flex flex-col justify-between">
                 <div className="space-y-3 sm:space-y-4">
                   <div className="flex items-center gap-2 text-[10px] sm:text-xs font-semibold tracking-wider text-[#FFD59F]/70">
-                    <Feather className="w-3 h-3 sm:w-4 sm:h-4" /> Spotlight:
-                    Historical Poet of the Day
+                    <Feather className="w-3 h-3 sm:w-4 sm:h-4" />{" "}
+                    {settings?.spotlight?.title}
                   </div>
                   <h2 className="text-xl sm:text-2xl font-bold font-serif text-[#FFD59F]">
                     {settings?.spotlight?.name}
                   </h2>
-                  <p
-                    className="text-xs sm:text-sm font-light leading-relaxed text-gray-300"
-                    dangerouslySetInnerHTML={{
-                      __html: settings?.spotlight?.description,
-                    }}
-                  ></p>
+                  <p className="text-xs sm:text-sm font-light leading-relaxed text-gray-300 whitespace-pre-line">
+                    {settings?.spotlight?.description}
+                  </p>
                 </div>
               </div>
 
               <div className="bg-[#FFD59F] text-[#4E1A27] rounded-xl p-5 sm:p-6 flex flex-col justify-between shadow-lg">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-[9px] sm:text-[10px] font-bold tracking-widest uppercase opacity-60 mb-2">
-                    <Lightbulb className="w-3 h-3" /> Thought of the Day
+                    <Lightbulb className="w-3 h-3" /> {settings?.quote?.title}
                   </div>
                   <Quote className="w-6 h-6 sm:w-8 sm:h-8 opacity-30 transform -scale-x-100" />
                   <p className="font-serif italic font-semibold text-base sm:text-lg leading-snug">
@@ -399,7 +450,36 @@ export default function App() {
                     rel="noreferrer"
                     className="flex items-center gap-3 p-2 hover:bg-[#4E1A27]/10 rounded-lg transition font-semibold text-sm"
                   >
-                    <Instagram className="w-5 h-5 text-red-700" /> @kalaam_nitr
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="text-[#4E1A27]"
+                    >
+                      <path
+                        d="M7.75 2.75h8.5A4 4 0 0 1 20.5 6.75v8.5a4 4 0 0 1-4 4h-8.5a4 4 0 0 1-4-4v-8.5a4 4 0 0 1 4-4Z"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M16.75 7.75h.01"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                      />
+                      <path
+                        d="M12.25 9.5a2.75 2.75 0 1 0 0 5.5 2.75 2.75 0 0 0 0-5.5Z"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    @kalaam_nitr
                   </a>
                   <a
                     href="https://www.youtube.com/@kalaamnitr7728"
@@ -407,7 +487,24 @@ export default function App() {
                     rel="noreferrer"
                     className="flex items-center gap-3 p-2 hover:bg-[#4E1A27]/10 rounded-lg transition font-semibold text-sm"
                   >
-                    <Youtube className="w-5 h-5 text-red-600" /> Kalaam NITR
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="text-[#4E1A27]"
+                    >
+                      <path
+                        d="M22 7.75c0-1.1-.9-2-2-2H4a2 2 0 0 0-2 2V16.25c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2V7.75Z"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path d="M10 9.5l6 3-6 3v-6Z" fill="currentColor" />
+                    </svg>
+                    Kalaam NITR
                   </a>
                 </div>
               </div>
@@ -560,39 +657,62 @@ export default function App() {
           </section>
         )}
 
-        {activeTab === "admin" && jwtToken && (
+        {activeTab === "admin" && currentUser && currentUser.isAdmin && (
           <AdminDashboard
             books={books}
             setBooks={setBooks}
             api={api}
-            token={jwtToken}
+            token={authToken}
             showToast={showToast}
             navigateTo={navigateTo}
+            currentUser={currentUser}
+            onAdminTransfer={handleAdminTransfer}
+            settings={settings}
+            onSettingsChange={(updated) => setSettings(updated)}
           />
         )}
       </main>
 
-      <footer
-        style={{ height: "55px" }}
-        className="fixed bottom-0 left-0 w-full bg-[#FFD59F] text-[#4E1A27] flex items-center justify-between px-3 sm:px-8 z-40 shadow-inner"
-      >
+      <footer className="fixed bottom-0 left-0 w-full h-14 bg-[#FFD59F] text-[#4E1A27] flex items-center justify-between px-3 sm:px-8 z-40 shadow-inner">
         <span className="text-[9px] sm:text-xs font-semibold tracking-wider">
           © 2026 KALAAM - SAC NITR
         </span>
         <div className="flex items-center gap-3 sm:gap-6 text-sm">
-          {!jwtToken && (
+          {!currentUser ? (
             <button
-              onClick={() => setAdminModalOpen(true)}
+              onClick={() => setLoginModalOpen(true)}
               className="text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1.5 sm:py-1 bg-[#4E1A27] text-[#FFD59F] rounded hover:bg-[#6a2536] transition mr-1 sm:mr-4 flex items-center gap-1"
             >
-              <UserCog className="w-3 h-3 hidden sm:block" /> Admin
+              <UserCog className="w-3 h-3 hidden sm:block" /> Login
             </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] sm:text-xs font-semibold">
+                {currentUser.displayName || currentUser.mobile}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="text-[10px] sm:text-xs font-bold px-2 py-1 bg-[#4E1A27] text-[#FFD59F] rounded"
+              >
+                Logout
+              </button>
+            </div>
           )}
-          <a href="#" className="hover:text-red-700 transition">
-            <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />
+          <a
+            href="https://www.instagram.com/kalaam_nitr/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-red-700 transition"
+          >
+            Instagram
           </a>
-          <a href="#" className="hover:text-red-600 transition">
-            <Youtube className="w-4 h-4 sm:w-5 sm:h-5" />
+          <a
+            href="https://www.youtube.com/@kalaamnitr7728"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-red-600 transition"
+          >
+            YouTube
           </a>
         </div>
       </footer>
@@ -625,47 +745,13 @@ export default function App() {
         />
       )}
 
-      {adminModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#4E1A27] border border-[#FFD59F]/40 p-6 sm:p-8 rounded-xl max-w-sm w-full shadow-2xl space-y-5 sm:space-y-6">
-            <div className="text-center">
-              <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-[#FFD59F] mx-auto mb-2" />
-              <h3 className="text-lg sm:text-xl font-bold text-[#FFD59F] font-serif">
-                Admin Auth
-              </h3>
-              <p className="text-[11px] sm:text-xs text-gray-300 mt-1">
-                Hint: admin
-              </p>
-            </div>
-            <input
-              type="password"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAdminLogin()}
-              className="w-full bg-[#6a2536]/50 border border-[#FFD59F]/30 p-3 rounded text-center text-[#FFD59F] tracking-widest focus:outline-none focus:border-[#FFD59F]"
-            />
-            <div className="flex gap-3">
-              <button
-                onClick={() => setAdminModalOpen(false)}
-                className="flex-1 border border-[#FFD59F]/30 text-[#FFD59F] hover:bg-[#FFD59F]/10 font-bold py-2 rounded text-sm transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAdminLogin}
-                disabled={authLoading}
-                className="flex-1 bg-[#FFD59F] text-[#4E1A27] font-bold py-2 rounded text-sm hover:bg-[#e6b87e] transition shadow-md flex items-center justify-center"
-              >
-                {authLoading ? (
-                  <Loader className="w-4 h-4 animate-spin" />
-                ) : (
-                  "Unlock"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <LoginModal
+        api={api}
+        open={loginModalOpen}
+        close={() => setLoginModalOpen(false)}
+        onLogin={handleAuthLogin}
+        showToast={showToast}
+      />
     </div>
   );
 }
