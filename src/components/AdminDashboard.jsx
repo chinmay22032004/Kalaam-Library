@@ -25,8 +25,7 @@ export default function AdminDashboard({
     availability: "Available",
     givenBy: "",
     coverUrl: "",
-    summary2: "",
-    summary4: "",
+    summary: "",
   });
   const [aboutForm, setAboutForm] = useState({
     mission: "",
@@ -61,8 +60,7 @@ export default function AdminDashboard({
         availability: "Available",
         givenBy: "",
         coverUrl: "",
-        summary2: "",
-        summary4: "",
+        summary: "",
       });
     } catch {
       showToast("Error adding book.", "error");
@@ -182,7 +180,7 @@ export default function AdminDashboard({
               POST /api/books
             </h2>
             <form onSubmit={handleAddBook} className="space-y-4">
-              {["title", "author", "givenBy"].map((field) => (
+              {["title", "author", "genre", "givenBy"].map((field) => (
                 <div key={field}>
                   <label className="block text-xs font-bold text-[#FFD59F]/80 mb-1 capitalize">
                     {field === "givenBy" ? "Given by" : field}
@@ -200,30 +198,16 @@ export default function AdminDashboard({
               <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">
-                    2-line summary
+                    Summary
                   </label>
                   <textarea
-                    rows={2}
-                    value={bookForm.summary2}
+                    rows={4}
+                    value={bookForm.summary}
                     onChange={(e) =>
-                      setBookForm({ ...bookForm, summary2: e.target.value })
+                      setBookForm({ ...bookForm, summary: e.target.value })
                     }
                     className="w-full bg-[#4E1A27] border border-[#FFD59F]/20 rounded p-2 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none"
-                    placeholder="Add a concise two line summary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">
-                    4-line summary
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={bookForm.summary4}
-                    onChange={(e) =>
-                      setBookForm({ ...bookForm, summary4: e.target.value })
-                    }
-                    className="w-full bg-[#4E1A27] border border-[#FFD59F]/20 rounded p-2 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none"
-                    placeholder="Add a full four line summary"
+                    placeholder="Add a book summary"
                   />
                 </div>
               </div>

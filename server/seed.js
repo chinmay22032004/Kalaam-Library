@@ -48,8 +48,7 @@ const defaultBooks = [
     availability: "Available",
     givenBy: "Student Activity Center",
     coverUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=200&q=80&auto=format&fit=crop",
-    summary2: "After Hannah Baker dies, Clay Jensen receives cassettes detailing the 13 reasons why.",
-    summary4: "13 Reasons Why follows Clay Jensen who receives cassette tapes from his classmate Hannah Baker detailing why she took her life."
+    summary: "After Hannah Baker dies, Clay Jensen receives cassettes detailing the 13 reasons why."
   },
   {
     title: "1984",
@@ -59,8 +58,7 @@ const defaultBooks = [
     availability: "Checked Out",
     givenBy: "Alumni Donation",
     coverUrl: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=200&q=80&auto=format&fit=crop",
-    summary2: "Winston Smith attempts to navigate a world under constant surveillance by Big Brother.",
-    summary4: "Set in a nightmare vision of futuristic London, Orwell's classic explores the terrifying mechanism of complete government surveillance."
+    summary: "Winston Smith attempts to navigate a world under constant surveillance by Big Brother."
   },
   {
     title: "Madhushala",
@@ -70,8 +68,7 @@ const defaultBooks = [
     availability: "Available",
     givenBy: "Kalaam Library",
     coverUrl: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&q=80&auto=format&fit=crop",
-    summary2: "A masterpiece of Hindi literature using the metaphor of a wine tavern to explore life's profound truths.",
-    summary4: "Madhushala uses the imagery of the tavern (Madhushala), the cupbearer, and the cup to reflect on the journey of life, mortality, and the universe, remaining one of the most celebrated works of Hindi poetry."
+    summary: "A masterpiece of Hindi literature using the metaphor of a wine tavern to explore life's profound truths."
   }
 ];
 

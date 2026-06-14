@@ -36,11 +36,7 @@ const BookSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  summary2: {
-    type: String,
-    default: ''
-  },
-  summary4: {
+  summary: {
     type: String,
     default: ''
   }

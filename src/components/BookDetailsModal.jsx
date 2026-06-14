@@ -3,8 +3,6 @@ import { X, Heart } from "lucide-react";
 export default function BookDetailsModal({
   book,
   close,
-  summarySize,
-  setSummarySize,
   isFav,
   toggleFav,
 }) {
@@ -58,33 +56,14 @@ export default function BookDetailsModal({
                 </span>
               </div>
               <p className="text-sm sm:text-sm text-gray-300 leading-normal">
-                Toggle sizes below to read summary tailored to your time.
+                A brief overview of the book.
               </p>
             </div>
           </div>
 
           <div className="space-y-3 bg-[#6a2536]/30 p-3 sm:p-4 rounded-xl border border-[#FFD59F]/10">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-300">
-                Summary Size:
-              </span>
-              <div className="flex gap-1 bg-[#4E1A27] p-1 rounded-lg border border-[#FFD59F]/20 w-full sm:w-auto">
-                <button
-                  onClick={() => setSummarySize(2)}
-                  className={`flex-1 sm:flex-none text-[10px] px-2.5 py-1.5 sm:py-1 rounded font-bold transition ${summarySize === 2 ? "bg-[#FFD59F] text-[#4E1A27]" : "hover:bg-[#FFD59F]/15"}`}
-                >
-                  2-Lines
-                </button>
-                <button
-                  onClick={() => setSummarySize(4)}
-                  className={`flex-1 sm:flex-none text-[10px] px-2.5 py-1.5 sm:py-1 rounded font-bold transition ${summarySize === 4 ? "bg-[#FFD59F] text-[#4E1A27]" : "hover:bg-[#FFD59F]/15"}`}
-                >
-                  4-Lines
-                </button>
-              </div>
-            </div>
             <p className="text-sm sm:text-base leading-relaxed font-light italic transition-all duration-300">
-              {summarySize === 2 ? book.summary2 : book.summary4}
+              {book.summary}
             </p>
           </div>
         </div>

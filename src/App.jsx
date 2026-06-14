@@ -41,7 +41,6 @@ export default function App() {
   const [bookModal, setBookModal] = useState({
     isOpen: false,
     bookId: null,
-    summarySize: 2,
   });
 
   const showToast = (message, type = "success") => {
@@ -560,7 +559,6 @@ export default function App() {
                           setBookModal({
                             isOpen: true,
                             bookId: book.id,
-                            summarySize: 2,
                           })
                         }
                       />
@@ -635,7 +633,7 @@ export default function App() {
                         </div>
                       </div>
                       <p className="text-[11px] sm:text-xs text-gray-300 font-light italic leading-relaxed line-clamp-2 sm:line-clamp-3 mt-2">
-                        {book.summary2}
+                        {book.summary}
                       </p>
                     </div>
                     <button
@@ -643,7 +641,6 @@ export default function App() {
                         setBookModal({
                           isOpen: true,
                           bookId: book.id,
-                          summarySize: 2,
                         })
                       }
                       className="mt-4 w-full bg-[#FFD59F] text-[#4E1A27] font-bold text-xs py-2.5 sm:py-2 rounded hover:bg-[#e6b87e] transition"
@@ -734,11 +731,7 @@ export default function App() {
         <BookDetailsModal
           book={books.find((b) => b.id === bookModal.bookId)}
           close={() =>
-            setBookModal({ isOpen: false, bookId: null, summarySize: 2 })
-          }
-          summarySize={bookModal.summarySize}
-          setSummarySize={(size) =>
-            setBookModal({ ...bookModal, summarySize: size })
+            setBookModal({ isOpen: false, bookId: null })
           }
           isFav={favorites.includes(bookModal.bookId)}
           toggleFav={() => toggleFavorite(bookModal.bookId)}
