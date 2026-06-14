@@ -94,6 +94,7 @@ export default function App() {
       if (user) {
         setAuthToken(storedToken);
         setCurrentUser(user);
+        setFavorites(user.favorites || []);
       } else {
         sessionStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(TOKEN_KEY);
@@ -116,6 +117,7 @@ export default function App() {
   const handleAuthLogin = ({ token, user }) => {
     setAuthToken(token);
     setCurrentUser(user);
+    setFavorites(user.favorites || []);
     sessionStorage.setItem(TOKEN_KEY, token);
     localStorage.removeItem(TOKEN_KEY);
   };
@@ -133,6 +135,7 @@ export default function App() {
       return null;
     }
     setCurrentUser(user);
+    setFavorites(user.favorites || []);
     if (!user.isAdmin) {
       navigateTo("home");
       showToast("You no longer have admin rights.", "info");
@@ -148,14 +151,25 @@ export default function App() {
     await refreshCurrentUser();
   };
 
-  const toggleFavorite = (id, e) => {
+  const toggleFavorite = async (id, e) => {
     if (e) e.stopPropagation();
-    if (favorites.includes(id)) {
-      setFavorites(favorites.filter((favId) => favId !== id));
-      showToast("Removed from favorites.", "info");
-    } else {
-      setFavorites([...favorites, id]);
-      showToast("Added to favorites.");
+    if (!currentUser) {
+      showToast("Please login to manage favorites.", "info");
+      return;
+    }
+    
+    try {
+      if (favorites.includes(id)) {
+        setFavorites(favorites.filter((favId) => favId !== id));
+        showToast("Removed from favorites.", "info");
+        await api.removeFavorite(id, authToken);
+      } else {
+        setFavorites([...favorites, id]);
+        showToast("Added to favorites.");
+        await api.addFavorite(id, authToken);
+      }
+    } catch (err) {
+      showToast("Failed to sync favorites with server.", "error");
     }
   };
 

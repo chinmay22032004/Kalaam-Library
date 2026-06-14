@@ -251,7 +251,8 @@ app.post('/api/auth/login', async (req, res) => {
         id: user._id.toString(),
         mobile: user.mobile,
         displayName: user.displayName,
-        isAdmin: user.isAdmin
+        isAdmin: user.isAdmin,
+        favorites: user.favorites ? user.favorites.map(id => id.toString()) : []
       }
     });
   } catch (err) {
@@ -260,13 +261,49 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // GET /api/auth/me
-app.get('/api/auth/me', auth, (req, res) => {
-  res.json({
-    id: req.user._id.toString(),
-    mobile: req.user.mobile,
-    displayName: req.user.displayName,
-    isAdmin: req.user.isAdmin
-  });
+app.get('/api/auth/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.json({
+      id: user._id.toString(),
+      mobile: user.mobile,
+      displayName: user.displayName,
+      isAdmin: user.isAdmin,
+      favorites: user.favorites ? user.favorites.map(id => id.toString()) : []
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching user' });
+  }
+});
+
+// POST /api/auth/me/favorites
+app.post('/api/auth/me/favorites', auth, async (req, res) => {
+  try {
+    const { bookId } = req.body;
+    if (!bookId) return res.status(400).json({ message: 'Book ID required' });
+    
+    const user = await User.findById(req.user._id);
+    if (!user.favorites.includes(bookId)) {
+      user.favorites.push(bookId);
+      await user.save();
+    }
+    res.json({ success: true, favorites: user.favorites });
+  } catch (err) {
+    res.status(500).json({ message: 'Error adding favorite' });
+  }
+});
+
+// DELETE /api/auth/me/favorites/:bookId
+app.delete('/api/auth/me/favorites/:bookId', auth, async (req, res) => {
+  try {
+    const { bookId } = req.params;
+    const user = await User.findById(req.user._id);
+    user.favorites = user.favorites.filter(id => id.toString() !== bookId);
+    await user.save();
+    res.json({ success: true, favorites: user.favorites });
+  } catch (err) {
+    res.status(500).json({ message: 'Error removing favorite' });
+  }
 });
 
 // POST /api/auth/logout

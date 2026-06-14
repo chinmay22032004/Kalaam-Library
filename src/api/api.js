@@ -124,5 +124,22 @@ export const api = {
       body: JSON.stringify(data)
     });
     return handleResponse(res);
+  },
+
+  addFavorite: async (bookId, token) => {
+    const res = await fetch('/api/auth/me/favorites', {
+      method: 'POST',
+      headers: getHeaders(token),
+      body: JSON.stringify({ bookId })
+    });
+    return handleResponse(res);
+  },
+
+  removeFavorite: async (bookId, token) => {
+    const res = await fetch(`/api/auth/me/favorites/${bookId}`, {
+      method: 'DELETE',
+      headers: getHeaders(token)
+    });
+    return handleResponse(res);
   }
 };
