@@ -73,7 +73,8 @@ app.get('/api/settings', async (req, res) => {
     
     res.json(response);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching settings' });
+    console.error('API Settings Error:', err);
+    res.status(500).json({ message: 'Error fetching settings', error: err.message });
   }
 });
 
@@ -109,7 +110,8 @@ app.get('/api/books', async (req, res) => {
     const books = await Book.find({});
     res.json(books);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching books' });
+    console.error('API Books Error:', err);
+    res.status(500).json({ message: 'Error fetching books', error: err.message });
   }
 });
 
