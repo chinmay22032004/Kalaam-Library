@@ -15,7 +15,7 @@ import {
   UserCog,
 } from "lucide-react";
 // Instagram and Youtube icons removed (not exported by lucide-react build)
-import { api } from "./api/mockApi";
+import { api } from "./api/api";
 import BookRow from "./components/BookRow";
 import BookDetailsModal from "./components/BookDetailsModal";
 import AdminDashboard from "./components/AdminDashboard";
