@@ -117,6 +117,15 @@ export const api = {
     return handleResponse(res);
   },
 
+  updateBook: async (id, data, token) => {
+    const res = await fetch(`/api/books/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(token),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(res);
+  },
+
   updateSettings: async (type, data, token) => {
     const res = await fetch(`/api/settings/${type}`, {
       method: 'PUT',

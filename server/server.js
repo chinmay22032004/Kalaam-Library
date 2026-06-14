@@ -137,6 +137,19 @@ app.post('/api/books', auth, admin, async (req, res) => {
   }
 });
 
+// PUT /api/books/:id
+app.put('/api/books/:id', auth, admin, async (req, res) => {
+  try {
+    const updatedBook = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updatedBook) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+    res.json(updatedBook);
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating book' });
+  }
+});
+
 // DELETE /api/books/:id
 app.delete('/api/books/:id', auth, admin, async (req, res) => {
   try {
@@ -144,6 +157,9 @@ app.delete('/api/books/:id', auth, admin, async (req, res) => {
     if (!book) {
       return res.status(444).json({ message: 'Book not found' });
     }
+    // Remove from all users' favorites
+    await User.updateMany({}, { $pull: { favorites: req.params.id } });
+    
     res.json({ success: true, message: 'Book deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Error deleting book' });

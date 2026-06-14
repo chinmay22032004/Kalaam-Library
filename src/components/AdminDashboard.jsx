@@ -79,6 +79,17 @@ export default function AdminDashboard({
     }
   };
 
+  const handleToggleStatus = async (book) => {
+    try {
+      const newStatus = book.availability === "Available" ? "Checked Out" : "Available";
+      const updatedBook = await api.updateBook(book.id, { availability: newStatus }, token);
+      setBooks(books.map((b) => (b.id === book.id ? updatedBook : b)));
+      showToast(`Status updated to ${newStatus}`);
+    } catch {
+      showToast("Error updating status.", "error");
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -562,12 +573,24 @@ export default function AdminDashboard({
                       </p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDeleteBook(book.id, book.title)}
-                    className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center ml-2"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleToggleStatus(book)}
+                      className={`text-[10px] sm:text-xs font-bold px-2 py-1.5 rounded shrink-0 transition ${
+                        book.availability === "Available"
+                          ? "bg-green-600/20 text-green-400 hover:bg-green-600/40"
+                          : "bg-yellow-600/20 text-yellow-400 hover:bg-yellow-600/40"
+                      }`}
+                    >
+                      {book.availability}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteBook(book.id, book.title)}
+                      className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center ml-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))
             )}

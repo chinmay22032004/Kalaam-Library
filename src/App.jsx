@@ -233,7 +233,7 @@ export default function App() {
             <Heart className="w-4 h-4 text-red-700 fill-current" /> MY
             FAVOURITES
             <span className="bg-[#4E1A27] text-[#FFD59F] text-xs px-2 py-0.5 rounded-full font-bold ml-1">
-              {currentUser ? favorites.length : 0}
+              {currentUser ? favoriteBooks.length : 0}
             </span>
           </button>
           {currentUser?.isAdmin && (
@@ -253,7 +253,7 @@ export default function App() {
           >
             <Heart className="w-5 h-5" />
             <span className="absolute top-0 right-0 bg-[#4E1A27] text-[#FFD59F] text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-              {currentUser ? favorites.length : 0}
+              {currentUser ? favoriteBooks.length : 0}
             </span>
           </button>
           <button
