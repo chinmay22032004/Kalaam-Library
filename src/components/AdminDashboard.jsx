@@ -22,10 +22,10 @@ export default function AdminDashboard({
     author: "",
     genre: "",
     language: "english",
-    availability: "Available",
     givenBy: "",
     coverUrl: "",
     summary: "",
+    copies: 1,
   });
   const [aboutForm, setAboutForm] = useState({
     mission: "",
@@ -57,10 +57,10 @@ export default function AdminDashboard({
         author: "",
         genre: "",
         language: "english",
-        availability: "Available",
         givenBy: "",
         coverUrl: "",
         summary: "",
+        copies: 1,
       });
     } catch {
       showToast("Error adding book.", "error");
@@ -79,28 +79,26 @@ export default function AdminDashboard({
     }
   };
 
-  const handleToggleStatus = async (book) => {
+  const handleIssueUser = async (book, userId) => {
+    if (!userId) return;
     try {
-      const newStatus = book.availability === "Available" ? "Checked Out" : "Available";
-      const updates = { availability: newStatus };
-      if (newStatus === "Available") {
-        updates.issuedTo = null;
-      }
-      const updatedBook = await api.updateBook(book.id, updates, token);
+      const issuedUsers = [...(book.issuedUsers || []), userId];
+      const updatedBook = await api.updateBook(book.id, { issuedUsers }, token);
       setBooks(books.map((b) => (b.id === book.id ? updatedBook : b)));
-      showToast(`Status updated to ${newStatus}`);
+      showToast("Copy issued successfully.");
     } catch {
-      showToast("Error updating status.", "error");
+      showToast("Error issuing copy.", "error");
     }
   };
 
-  const handleAssignUser = async (bookId, userId) => {
+  const handleReturnCopy = async (book, userId) => {
     try {
-      const updatedBook = await api.updateBook(bookId, { issuedTo: userId || null }, token);
-      setBooks(books.map((b) => (b.id === bookId ? updatedBook : b)));
-      showToast("Assigned user updated.");
+      const issuedUsers = (book.issuedUsers || []).filter(id => id !== userId);
+      const updatedBook = await api.updateBook(book.id, { issuedUsers }, token);
+      setBooks(books.map((b) => (b.id === book.id ? updatedBook : b)));
+      showToast("Copy returned successfully.");
     } catch {
-      showToast("Error assigning user.", "error");
+      showToast("Error returning copy.", "error");
     }
   };
 
@@ -269,18 +267,17 @@ export default function AdminDashboard({
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">
-                    Status
+                    Number of Copies
                   </label>
-                  <select
-                    value={bookForm.availability}
+                  <input
+                    type="number"
+                    min="1"
+                    value={bookForm.copies}
                     onChange={(e) =>
-                      setBookForm({ ...bookForm, availability: e.target.value })
+                      setBookForm({ ...bookForm, copies: parseInt(e.target.value) || 1 })
                     }
                     className="w-full bg-[#4E1A27] border border-[#FFD59F]/20 rounded p-2 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none"
-                  >
-                    <option value="Available">Available</option>
-                    <option value="Checked Out">Checked Out</option>
-                  </select>
+                  />
                 </div>
               </div>
               <button
@@ -587,39 +584,60 @@ export default function AdminDashboard({
                       </p>
                     </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2 justify-end">
-                    <button
-                      onClick={() => handleToggleStatus(book)}
-                      className={`text-[10px] sm:text-xs font-bold px-2 py-1.5 rounded shrink-0 transition ${
-                        book.availability === "Available"
-                          ? "bg-green-600/20 text-green-400 hover:bg-green-600/40"
-                          : "bg-yellow-600/20 text-yellow-400 hover:bg-yellow-600/40"
-                      }`}
-                    >
-                      {book.availability}
-                    </button>
-                    
-                    {book.availability === "Checked Out" && (
-                      <select
-                        value={book.issuedTo || ""}
-                        onChange={(e) => handleAssignUser(book.id, e.target.value)}
-                        className="bg-[#4E1A27] border border-[#FFD59F]/20 text-[#FFD59F] text-[10px] sm:text-xs rounded px-2 py-1 max-w-[100px] sm:max-w-[120px] outline-none focus:border-[#FFD59F] truncate"
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`text-[10px] sm:text-xs font-bold px-2 py-1.5 rounded shrink-0 transition ${
+                          book.availability === "Available"
+                            ? "bg-green-600/20 text-green-400"
+                            : "bg-yellow-600/20 text-yellow-400"
+                        }`}
                       >
-                        <option value="">Select User...</option>
-                        {users.map((u) => (
-                          <option key={u.id} value={u.id}>
-                            {u.displayName || u.mobile}
-                          </option>
-                        ))}
-                      </select>
-                    )}
+                        {book.availability} ({(book.copies || 1) - (book.issuedUsers?.length || 0)} left)
+                      </span>
+                      
+                      {((book.copies || 1) - (book.issuedUsers?.length || 0) > 0) && (
+                        <select
+                          value=""
+                          onChange={(e) => handleIssueUser(book, e.target.value)}
+                          className="bg-[#4E1A27] border border-[#FFD59F]/20 text-[#FFD59F] text-[10px] sm:text-xs rounded px-2 py-1 max-w-[120px] outline-none focus:border-[#FFD59F] truncate"
+                        >
+                          <option value="">Issue to...</option>
+                          {users
+                            .filter(u => !book.issuedUsers?.includes(u.id))
+                            .map((u) => (
+                              <option key={u.id} value={u.id}>
+                                {u.displayName || u.mobile}
+                              </option>
+                            ))}
+                        </select>
+                      )}
 
-                    <button
-                      onClick={() => handleDeleteBook(book.id, book.title)}
-                      className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                      <button
+                        onClick={() => handleDeleteBook(book.id, book.title)}
+                        className="w-8 h-8 shrink-0 rounded border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center ml-auto sm:ml-2"
+                        title="Delete Book"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {book.issuedUsers && book.issuedUsers.length > 0 && (
+                      <div className="flex flex-col gap-1 w-full sm:w-auto mt-2 sm:mt-0 bg-black/20 p-2 rounded max-h-24 overflow-y-auto">
+                        <span className="text-[9px] text-[#FFD59F]/60 font-bold uppercase tracking-wider mb-1">Currently Issued To:</span>
+                        {book.issuedUsers.map(userId => {
+                          const user = users.find(u => u.id === userId);
+                          return (
+                            <div key={userId} className="flex justify-between items-center gap-4 text-[10px] sm:text-xs text-gray-300">
+                              <span className="truncate max-w-[100px]">{user?.displayName || user?.mobile || 'Unknown User'}</span>
+                              <button onClick={() => handleReturnCopy(book, userId)} className="text-red-400 hover:text-red-300 ml-2">
+                                Return
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))

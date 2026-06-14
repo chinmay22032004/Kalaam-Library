@@ -40,11 +40,14 @@ const BookSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  issuedTo: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    default: null
+  copies: {
+    type: Number,
+    default: 1
   },
+  issuedUsers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
   createdAt: {
     type: Date,
     default: Date.now

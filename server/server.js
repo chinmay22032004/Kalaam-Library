@@ -113,22 +113,25 @@ app.get('/api/books', async (req, res) => {
 // POST /api/books
 app.post('/api/books', auth, admin, async (req, res) => {
   try {
-    const { title, author, genre, language, availability, givenBy, coverUrl, summary, issuedTo } = req.body;
+    const { title, author, genre, language, givenBy, coverUrl, summary, copies } = req.body;
     
     if (!title || !author || !genre || !language) {
       return res.status(400).json({ message: 'Title, Author, Genre and Language are required' });
     }
+
+    const copiesNum = parseInt(copies) || 1;
     
     const newBook = new Book({
       title,
       author,
       genre,
       language,
-      availability: availability || 'Available',
+      availability: 'Available',
       givenBy,
       coverUrl,
       summary,
-      issuedTo: issuedTo || null
+      copies: copiesNum,
+      issuedUsers: []
     });
     
     await newBook.save();
@@ -141,11 +144,20 @@ app.post('/api/books', auth, admin, async (req, res) => {
 // PUT /api/books/:id
 app.put('/api/books/:id', auth, admin, async (req, res) => {
   try {
-    const updatedBook = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedBook) {
+    const book = await Book.findById(req.params.id);
+    if (!book) {
       return res.status(404).json({ message: 'Book not found' });
     }
-    res.json(updatedBook);
+    
+    Object.assign(book, req.body);
+    
+    // Auto-calculate availability
+    if (book.issuedUsers && book.copies) {
+      book.availability = book.issuedUsers.length >= book.copies ? 'Checked Out' : 'Available';
+    }
+    
+    await book.save();
+    res.json(book);
   } catch (err) {
     res.status(500).json({ message: 'Error updating book' });
   }
