@@ -22,12 +22,17 @@ import { auth, admin } from './middleware/auth.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Environment fallbacks
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://chinmay22032004:Chs%402203@cluster0.dsk00ft.mongodb.net/kalaam?appName=Cluster0";
+const JWT_SECRET = process.env.JWT_SECRET || "kalaam_library_super_secret_key_12345";
+process.env.JWT_SECRET = JWT_SECRET;
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/kalaam')
+mongoose.connect(MONGODB_URI)
   .then(() => console.log('MongoDB connected successfully'))
   .catch(err => {
     console.error('MongoDB connection error:', err);
