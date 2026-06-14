@@ -82,11 +82,25 @@ export default function AdminDashboard({
   const handleToggleStatus = async (book) => {
     try {
       const newStatus = book.availability === "Available" ? "Checked Out" : "Available";
-      const updatedBook = await api.updateBook(book.id, { availability: newStatus }, token);
+      const updates = { availability: newStatus };
+      if (newStatus === "Available") {
+        updates.issuedTo = null;
+      }
+      const updatedBook = await api.updateBook(book.id, updates, token);
       setBooks(books.map((b) => (b.id === book.id ? updatedBook : b)));
       showToast(`Status updated to ${newStatus}`);
     } catch {
       showToast("Error updating status.", "error");
+    }
+  };
+
+  const handleAssignUser = async (bookId, userId) => {
+    try {
+      const updatedBook = await api.updateBook(bookId, { issuedTo: userId || null }, token);
+      setBooks(books.map((b) => (b.id === bookId ? updatedBook : b)));
+      showToast("Assigned user updated.");
+    } catch {
+      showToast("Error assigning user.", "error");
     }
   };
 
@@ -573,7 +587,7 @@ export default function AdminDashboard({
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 justify-end">
                     <button
                       onClick={() => handleToggleStatus(book)}
                       className={`text-[10px] sm:text-xs font-bold px-2 py-1.5 rounded shrink-0 transition ${
@@ -584,9 +598,25 @@ export default function AdminDashboard({
                     >
                       {book.availability}
                     </button>
+                    
+                    {book.availability === "Checked Out" && (
+                      <select
+                        value={book.issuedTo || ""}
+                        onChange={(e) => handleAssignUser(book.id, e.target.value)}
+                        className="bg-[#4E1A27] border border-[#FFD59F]/20 text-[#FFD59F] text-[10px] sm:text-xs rounded px-2 py-1 max-w-[100px] sm:max-w-[120px] outline-none focus:border-[#FFD59F] truncate"
+                      >
+                        <option value="">Select User...</option>
+                        {users.map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.displayName || u.mobile}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+
                     <button
                       onClick={() => handleDeleteBook(book.id, book.title)}
-                      className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center ml-2"
+                      className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

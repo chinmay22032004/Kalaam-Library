@@ -113,7 +113,7 @@ app.get('/api/books', async (req, res) => {
 // POST /api/books
 app.post('/api/books', auth, admin, async (req, res) => {
   try {
-    const { title, author, genre, language, availability, givenBy, coverUrl, summary } = req.body;
+    const { title, author, genre, language, availability, givenBy, coverUrl, summary, issuedTo } = req.body;
     
     if (!title || !author || !genre || !language) {
       return res.status(400).json({ message: 'Title, Author, Genre and Language are required' });
@@ -127,7 +127,8 @@ app.post('/api/books', auth, admin, async (req, res) => {
       availability: availability || 'Available',
       givenBy,
       coverUrl,
-      summary
+      summary,
+      issuedTo: issuedTo || null
     });
     
     await newBook.save();
