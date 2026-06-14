@@ -400,7 +400,7 @@ export default function App() {
                     <Lightbulb className="w-3 h-3" /> {settings?.quote?.title}
                   </div>
                   <Quote className="w-6 h-6 sm:w-8 sm:h-8 opacity-30 transform -scale-x-100" />
-                  <p className="font-serif italic font-semibold text-base sm:text-lg leading-snug">
+                  <p className="font-serif italic font-semibold text-base sm:text-lg leading-snug whitespace-pre-wrap">
                     "{settings?.quote?.quote}"
                   </p>
                   <p className="text-[10px] sm:text-xs font-bold tracking-wider uppercase opacity-80 text-right">
@@ -421,7 +421,7 @@ export default function App() {
               <h1 className="text-2xl sm:text-4xl font-bold text-[#FFD59F]">
                 Kalaam - The Official Poetry Club of NIT Rourkela
               </h1>
-              <p className="text-xs sm:text-sm text-gray-300 font-light leading-relaxed">
+              <p className="text-xs sm:text-sm text-gray-300 font-light leading-relaxed whitespace-pre-wrap">
                 {settings?.about?.mission}
               </p>
             </div>
