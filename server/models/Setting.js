@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const SettingSchema = new mongoose.Schema({
   type: {
@@ -12,4 +12,4 @@ const SettingSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Setting', SettingSchema);
+export default mongoose.model('Setting', SettingSchema);

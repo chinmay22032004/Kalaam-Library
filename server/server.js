@@ -1,20 +1,23 @@
-require('dotenv').config();
-const dns = require('dns');
+import dotenv from 'dotenv';
+dotenv.config();
+
+import dns from 'dns';
 try {
   dns.setServers(['8.8.8.8', '8.8.4.4']);
 } catch (e) {
   // Ignore
 }
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 
-const Book = require('./models/Book');
-const Setting = require('./models/Setting');
-const User = require('./models/User');
-const { auth, admin } = require('./middleware/auth');
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+import Book from './models/Book.js';
+import Setting from './models/Setting.js';
+import User from './models/User.js';
+import { auth, admin } from './middleware/auth.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -354,10 +357,13 @@ app.delete('/api/admin/users/:id', auth, admin, async (req, res) => {
 });
 
 // Start Server
-if (require.main === module) {
+import * as url from 'url';
+const isMain = process.argv[1] && import.meta.url === url.pathToFileURL(process.argv[1]).href;
+
+if (isMain) {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
 }
 
-module.exports = app;
+export default app;
