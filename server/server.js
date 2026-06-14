@@ -27,11 +27,11 @@ app.use(cors());
 app.use(express.json());
 
 // Database connection
-mongoose.connect(MONGODB_URI)
+const MONGODB_URI_DIRECT = 'mongodb://chinmay22032004:Chs%402203@ac-k0mbdu5-shard-00-00.dsk00ft.mongodb.net:27017,ac-k0mbdu5-shard-00-01.dsk00ft.mongodb.net:27017,ac-k0mbdu5-shard-00-02.dsk00ft.mongodb.net:27017/kalaam?ssl=true&replicaSet=atlas-npn8xq-shard-0&authSource=admin&retryWrites=true&w=majority&appName=Cluster0';
+
+mongoose.connect(MONGODB_URI_DIRECT)
   .then(() => console.log('MongoDB connected successfully'))
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-  });
+  .catch((err) => console.error('MongoDB connection error:', err));
 
 // --- SETTINGS ROUTES ---
 
