@@ -18,7 +18,13 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Environment fallbacks
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://chinmay22032004:Chs%402203@cluster0.dsk00ft.mongodb.net/kalaam?appName=Cluster0";
+const MONGODB_URI_SRV = "mongodb+srv://chinmay22032004:Chs%402203@cluster0.dsk00ft.mongodb.net/kalaam?appName=Cluster0";
+const MONGODB_URI_DIRECT = 'mongodb://chinmay22032004:Chs%402203@ac-k0mbdu5-shard-00-00.dsk00ft.mongodb.net:27017,ac-k0mbdu5-shard-00-01.dsk00ft.mongodb.net:27017,ac-k0mbdu5-shard-00-02.dsk00ft.mongodb.net:27017/kalaam?ssl=true&replicaSet=atlas-npn8xq-shard-0&authSource=admin&retryWrites=true&w=majority&appName=Cluster0';
+
+// Use SRV for Vercel production, use direct string for local dev due to ISP DNS blocking
+const isVercel = process.env.VERCEL === "1";
+const MONGODB_URI = process.env.MONGODB_URI || (isVercel ? MONGODB_URI_SRV : MONGODB_URI_DIRECT);
+
 const JWT_SECRET = process.env.JWT_SECRET || "kalaam_library_super_secret_key_12345";
 process.env.JWT_SECRET = JWT_SECRET;
 

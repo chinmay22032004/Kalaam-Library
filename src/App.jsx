@@ -111,7 +111,11 @@ export default function App() {
     sessionStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(TOKEN_KEY);
     showToast("Logged out.", "info");
-    navigateTo("home");
+    if (activeTab === "english" || activeTab === "hindi" || activeTab === "favorites" || activeTab === "admin") {
+      setActiveTab("home");
+    } else {
+      navigateTo("home");
+    }
   };
 
   const handleAuthLogin = ({ token, user }) => {
@@ -220,34 +224,40 @@ export default function App() {
         </div>
 
         <nav className="hidden md:flex items-center space-x-1 lg:space-x-4">
-          <button
-            onClick={() => navigateTo("english")}
-            className={`px-3 py-1.5 rounded font-semibold text-sm hover:bg-[#4E1A27] hover:text-[#FFD59F] transition ${activeTab === "english" ? "bg-[#4E1A27] text-[#FFD59F]" : ""}`}
-          >
-            ENGLISH BOOKS
-          </button>
-          <button
-            onClick={() => navigateTo("hindi")}
-            className={`px-3 py-1.5 rounded font-semibold text-sm hover:bg-[#4E1A27] hover:text-[#FFD59F] transition ${activeTab === "hindi" ? "bg-[#4E1A27] text-[#FFD59F]" : ""}`}
-          >
-            HINDI/URDU BOOKS
-          </button>
+          {currentUser && (
+            <>
+              <button
+                onClick={() => navigateTo("english")}
+                className={`px-3 py-1.5 rounded font-semibold text-sm hover:bg-[#4E1A27] hover:text-[#FFD59F] transition ${activeTab === "english" ? "bg-[#4E1A27] text-[#FFD59F]" : ""}`}
+              >
+                ENGLISH BOOKS
+              </button>
+              <button
+                onClick={() => navigateTo("hindi")}
+                className={`px-3 py-1.5 rounded font-semibold text-sm hover:bg-[#4E1A27] hover:text-[#FFD59F] transition ${activeTab === "hindi" ? "bg-[#4E1A27] text-[#FFD59F]" : ""}`}
+              >
+                HINDI/URDU BOOKS
+              </button>
+            </>
+          )}
           <button
             onClick={() => navigateTo("about")}
             className={`px-3 py-1.5 rounded font-semibold text-sm hover:bg-[#4E1A27] hover:text-[#FFD59F] transition ${activeTab === "about" ? "bg-[#4E1A27] text-[#FFD59F]" : ""}`}
           >
             ABOUT
           </button>
-          <button
-            onClick={() => navigateTo("favorites")}
-            className={`px-3 py-1.5 rounded font-semibold text-sm hover:bg-[#4E1A27] hover:text-[#FFD59F] transition flex items-center gap-1 ${activeTab === "favorites" ? "bg-[#4E1A27] text-[#FFD59F]" : ""}`}
-          >
-            <Heart className="w-4 h-4 text-red-700 fill-current" /> MY
-            FAVOURITES
-            <span className="bg-[#4E1A27] text-[#FFD59F] text-xs px-2 py-0.5 rounded-full font-bold ml-1">
-              {currentUser ? favoriteBooks.length : 0}
-            </span>
-          </button>
+          {currentUser && (
+            <button
+              onClick={() => navigateTo("favorites")}
+              className={`px-3 py-1.5 rounded font-semibold text-sm hover:bg-[#4E1A27] hover:text-[#FFD59F] transition flex items-center gap-1 ${activeTab === "favorites" ? "bg-[#4E1A27] text-[#FFD59F]" : ""}`}
+            >
+              <Heart className="w-4 h-4 text-red-700 fill-current" /> MY
+              FAVOURITES
+              <span className="bg-[#4E1A27] text-[#FFD59F] text-xs px-2 py-0.5 rounded-full font-bold ml-1">
+                {favoriteBooks.length}
+              </span>
+            </button>
+          )}
           {currentUser?.isAdmin && (
             <button
               onClick={() => navigateTo("admin")}
@@ -259,15 +269,17 @@ export default function App() {
         </nav>
 
         <div className="md:hidden flex items-center gap-2">
-          <button
-            onClick={() => navigateTo("favorites")}
-            className="relative text-[#4E1A27] p-2"
-          >
-            <Heart className="w-5 h-5" />
-            <span className="absolute top-0 right-0 bg-[#4E1A27] text-[#FFD59F] text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-              {currentUser ? favoriteBooks.length : 0}
-            </span>
-          </button>
+          {currentUser && (
+            <button
+              onClick={() => navigateTo("favorites")}
+              className="relative text-[#4E1A27] p-2"
+            >
+              <Heart className="w-5 h-5" />
+              <span className="absolute top-0 right-0 bg-[#4E1A27] text-[#FFD59F] text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                {favoriteBooks.length}
+              </span>
+            </button>
+          )}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="text-[#4E1A27] p-2 focus:outline-none"
@@ -299,18 +311,22 @@ export default function App() {
           >
             HOME
           </button>
-          <button
-            onClick={() => navigateTo("english")}
-            className="text-left font-bold py-3 px-4 hover:bg-[#4E1A27] hover:text-[#FFD59F] rounded transition"
-          >
-            ENGLISH BOOKS
-          </button>
-          <button
-            onClick={() => navigateTo("hindi")}
-            className="text-left font-bold py-3 px-4 hover:bg-[#4E1A27] hover:text-[#FFD59F] rounded transition"
-          >
-            HINDI/URDU BOOKS
-          </button>
+          {currentUser && (
+            <>
+              <button
+                onClick={() => navigateTo("english")}
+                className="text-left font-bold py-3 px-4 hover:bg-[#4E1A27] hover:text-[#FFD59F] rounded transition"
+              >
+                ENGLISH BOOKS
+              </button>
+              <button
+                onClick={() => navigateTo("hindi")}
+                className="text-left font-bold py-3 px-4 hover:bg-[#4E1A27] hover:text-[#FFD59F] rounded transition"
+              >
+                HINDI/URDU BOOKS
+              </button>
+            </>
+          )}
           <button
             onClick={() => navigateTo("about")}
             className="text-left font-bold py-3 px-4 hover:bg-[#4E1A27] hover:text-[#FFD59F] rounded transition"
@@ -387,13 +403,25 @@ export default function App() {
 
                 <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center relative z-20 w-full sm:w-auto">
                   <button
-                    onClick={() => navigateTo("english")}
+                    onClick={() => {
+                      if (!currentUser) {
+                        showToast("Please login to view the library.", "info");
+                        return;
+                      }
+                      navigateTo("english");
+                    }}
                     className="w-full sm:w-auto bg-[#FFD59F] text-[#4E1A27] hover:bg-[#e6b87e] font-bold py-3 sm:py-2.5 px-8 rounded-lg transition transform active:scale-95 shadow-[0_4px_14px_rgba(255,213,159,0.3)] text-xs sm:text-sm uppercase tracking-wider"
                   >
                     English Books
                   </button>
                   <button
-                    onClick={() => navigateTo("hindi")}
+                    onClick={() => {
+                      if (!currentUser) {
+                        showToast("Please login to view the library.", "info");
+                        return;
+                      }
+                      navigateTo("hindi");
+                    }}
                     className="w-full sm:w-auto border-2 border-[#FFD59F] text-[#FFD59F] hover:bg-[#FFD59F]/10 font-bold py-3 sm:py-2.5 px-8 rounded-lg transition active:scale-95 text-xs sm:text-sm uppercase tracking-wider shadow-md"
                   >
                     Hindi/Urdu Books
