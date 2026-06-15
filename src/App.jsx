@@ -221,6 +221,18 @@ export default function App() {
 
         <nav className="hidden md:flex items-center space-x-1 lg:space-x-4">
           <button
+            onClick={() => navigateTo("english")}
+            className={`px-3 py-1.5 rounded font-semibold text-sm hover:bg-[#4E1A27] hover:text-[#FFD59F] transition ${activeTab === "english" ? "bg-[#4E1A27] text-[#FFD59F]" : ""}`}
+          >
+            ENGLISH BOOKS
+          </button>
+          <button
+            onClick={() => navigateTo("hindi")}
+            className={`px-3 py-1.5 rounded font-semibold text-sm hover:bg-[#4E1A27] hover:text-[#FFD59F] transition ${activeTab === "hindi" ? "bg-[#4E1A27] text-[#FFD59F]" : ""}`}
+          >
+            HINDI/URDU BOOKS
+          </button>
+          <button
             onClick={() => navigateTo("about")}
             className={`px-3 py-1.5 rounded font-semibold text-sm hover:bg-[#4E1A27] hover:text-[#FFD59F] transition ${activeTab === "about" ? "bg-[#4E1A27] text-[#FFD59F]" : ""}`}
           >
@@ -286,6 +298,18 @@ export default function App() {
             className="text-left font-bold py-3 px-4 hover:bg-[#4E1A27] hover:text-[#FFD59F] rounded transition"
           >
             HOME
+          </button>
+          <button
+            onClick={() => navigateTo("english")}
+            className="text-left font-bold py-3 px-4 hover:bg-[#4E1A27] hover:text-[#FFD59F] rounded transition"
+          >
+            ENGLISH BOOKS
+          </button>
+          <button
+            onClick={() => navigateTo("hindi")}
+            className="text-left font-bold py-3 px-4 hover:bg-[#4E1A27] hover:text-[#FFD59F] rounded transition"
+          >
+            HINDI/URDU BOOKS
           </button>
           <button
             onClick={() => navigateTo("about")}
@@ -366,13 +390,13 @@ export default function App() {
                     onClick={() => navigateTo("english")}
                     className="w-full sm:w-auto bg-[#FFD59F] text-[#4E1A27] hover:bg-[#e6b87e] font-bold py-3 sm:py-2.5 px-8 rounded-lg transition transform active:scale-95 shadow-[0_4px_14px_rgba(255,213,159,0.3)] text-xs sm:text-sm uppercase tracking-wider"
                   >
-                    English
+                    English Books
                   </button>
                   <button
                     onClick={() => navigateTo("hindi")}
                     className="w-full sm:w-auto border-2 border-[#FFD59F] text-[#FFD59F] hover:bg-[#FFD59F]/10 font-bold py-3 sm:py-2.5 px-8 rounded-lg transition active:scale-95 text-xs sm:text-sm uppercase tracking-wider shadow-md"
                   >
-                    Hindi & Urdu
+                    Hindi/Urdu Books
                   </button>
                 </div>
               </div>
