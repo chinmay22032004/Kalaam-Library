@@ -21,7 +21,7 @@ export default function LoginModal({ api, open, close, onLogin, showToast }) {
         setAdminAllowed(true);
       }
     })();
-  }, [open]);
+  }, [open, api]);
 
   const reset = () => {
     setMobile("");
@@ -41,7 +41,7 @@ export default function LoginModal({ api, open, close, onLogin, showToast }) {
       return showToast("Passwords do not match", "error");
     setLoading(true);
     try {
-      const user = await api.registerUser({
+      await api.registerUser({
         mobile,
         password,
         displayName,

@@ -172,7 +172,7 @@ export default function App() {
         showToast("Added to favorites.");
         await api.addFavorite(id, authToken);
       }
-    } catch (err) {
+    } catch {
       showToast("Failed to sync favorites with server.", "error");
     }
   };
@@ -593,9 +593,6 @@ export default function App() {
                 <h1 className="text-2xl sm:text-3xl font-bold text-[#FFD59F] capitalize">
                   {activeTab} Cloud Library
                 </h1>
-                <p className="text-[11px] sm:text-xs text-gray-300 mt-1">
-                  Explore our rich collection dynamically loaded via REST APIs.
-                </p>
               </div>
               <div className="relative w-full sm:w-64 shrink-0">
                 <input

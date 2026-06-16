@@ -499,9 +499,6 @@ export default function AdminDashboard({
             <h2 className="text-lg sm:text-xl font-bold">
               Manage Cloud Library
             </h2>
-            <p className="text-[10px] sm:text-xs text-gray-300 mt-1">
-              Simulating documents fetched from MongoDB
-            </p>
           </div>
 
           <div className="p-3 sm:p-4 space-y-4 border-b border-[#FFD59F]/10">

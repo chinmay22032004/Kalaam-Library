@@ -97,7 +97,7 @@ app.put('/api/settings/:type', auth, admin, async (req, res) => {
     }
     
     res.json(setting.data);
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Error updating settings' });
   }
 });
@@ -142,7 +142,7 @@ app.post('/api/books', auth, admin, async (req, res) => {
     
     await newBook.save();
     res.status(201).json(newBook);
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Error adding book' });
   }
 });
@@ -164,7 +164,7 @@ app.put('/api/books/:id', auth, admin, async (req, res) => {
     
     await book.save();
     res.json(book);
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Error updating book' });
   }
 });
@@ -180,7 +180,7 @@ app.delete('/api/books/:id', auth, admin, async (req, res) => {
     await User.updateMany({}, { $pull: { favorites: req.params.id } });
     
     res.json({ success: true, message: 'Book deleted successfully' });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Error deleting book' });
   }
 });
@@ -193,7 +193,7 @@ app.get('/api/auth/admin-registered', async (req, res) => {
   try {
     const adminExists = await User.exists({ isAdmin: true });
     res.json(!!adminExists);
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Error checking admin registration' });
   }
 });
@@ -290,7 +290,7 @@ app.post('/api/auth/login', async (req, res) => {
         favorites: user.favorites ? user.favorites.map(id => id.toString()) : []
       }
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Error during login' });
   }
 });
@@ -306,7 +306,7 @@ app.get('/api/auth/me', auth, async (req, res) => {
       isAdmin: user.isAdmin,
       favorites: user.favorites ? user.favorites.map(id => id.toString()) : []
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Error fetching user' });
   }
 });
@@ -323,7 +323,7 @@ app.post('/api/auth/me/favorites', auth, async (req, res) => {
       await user.save();
     }
     res.json({ success: true, favorites: user.favorites });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Error adding favorite' });
   }
 });
@@ -336,7 +336,7 @@ app.delete('/api/auth/me/favorites/:bookId', auth, async (req, res) => {
     user.favorites = user.favorites.filter(id => id.toString() !== bookId);
     await user.save();
     res.json({ success: true, favorites: user.favorites });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Error removing favorite' });
   }
 });
@@ -362,7 +362,7 @@ app.get('/api/admin/users', auth, admin, async (req, res) => {
       createdAt: u.createdAt
     }));
     res.json(formattedUsers);
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Error fetching users' });
   }
 });
@@ -402,7 +402,7 @@ app.put('/api/admin/users/:id/transfer-admin', auth, admin, async (req, res) => 
       displayName: targetUser.displayName,
       isAdmin: true
     });
-  } catch (err) {
+  } catch {
     await session.abortTransaction();
     session.endSession();
     res.status(500).json({ message: 'Error transferring admin rights' });
@@ -424,7 +424,7 @@ app.delete('/api/admin/users/:id', auth, admin, async (req, res) => {
     }
     
     res.json({ success: true, message: 'User deleted successfully' });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Error deleting user' });
   }
 });
