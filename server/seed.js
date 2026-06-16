@@ -2,13 +2,12 @@ require('dotenv').config();
 const dns = require('dns');
 try {
   dns.setServers(['8.8.8.8', '8.8.4.4']);
-} catch (e) {
+} catch {
   // Ignore
 }
 const mongoose = require('mongoose');
 const Book = require('./models/Book');
 const Setting = require('./models/Setting');
-const User = require('./models/User');
 
 const defaultSettings = [
   {

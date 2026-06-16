@@ -150,5 +150,23 @@ export const api = {
       headers: getHeaders(token)
     });
     return handleResponse(res);
-  }
+  },
+
+  addFavoritePoem: async (poemId, token) => {
+    const res = await fetch('/api/auth/me/favorite-poems', {
+      method: 'POST',
+      headers: getHeaders(token),
+      body: JSON.stringify({ poemId })
+    });
+    return handleResponse(res);
+  },
+
+  removeFavoritePoem: async (poemId, token) => {
+    const res = await fetch(`/api/auth/me/favorite-poems/${poemId}`, {
+      method: 'DELETE',
+      headers: getHeaders(token)
+    });
+    return handleResponse(res);
+  },
+
 };
