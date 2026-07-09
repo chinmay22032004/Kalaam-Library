@@ -61,8 +61,8 @@ export default function App() {
         ]);
         setBooks(booksData);
         setSettings(settingsData);
-      } catch {
-        showToast("Error connecting to server.", "error");
+      } catch (error) {
+        showToast(`Error connecting to server: ${error.message}`, "error");
       } finally {
         setLoadingInitial(false);
       }
