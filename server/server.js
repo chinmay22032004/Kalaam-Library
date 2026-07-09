@@ -371,6 +371,7 @@ app.get('/api/auth/me', auth, async (req, res) => {
       id: user._id.toString(),
       mobile: user.mobile,
       displayName: user.displayName,
+      profilePicture: user.profilePicture,
       isAdmin: user.isAdmin,
       favorites: user.favorites ? user.favorites.map(id => id.toString()) : []
     });
