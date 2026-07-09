@@ -657,9 +657,9 @@ export default function App() {
                     onChange={(e) => setSelectedGenre(e.target.value)}
                     className="w-full bg-[#6a2536]/40 border border-[#FFD59F]/30 text-[#FFD59F] text-xs sm:text-sm px-3 py-2.5 sm:py-2 rounded-lg focus:outline-none focus:border-[#FFD59F] transition appearance-none"
                   >
-                    <option value="">All Genres</option>
+                    <option className="bg-[#4E1A27] text-[#FFD59F]" value="">All Genres</option>
                     {availableGenres.map((genre, idx) => (
-                      <option key={idx} value={genre.toLowerCase()}>{genre}</option>
+                      <option className="bg-[#4E1A27] text-[#FFD59F]" key={idx} value={genre.toLowerCase()}>{genre}</option>
                     ))}
                   </select>
                   <div className="absolute right-3 top-3 sm:top-2.5 pointer-events-none text-[#FFD59F]/60 text-xs">▼</div>
