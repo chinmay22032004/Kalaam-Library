@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 
 import Book from './models/Book.js';
 import Setting from './models/Setting.js';
@@ -27,6 +28,8 @@ const MONGODB_URI = process.env.MONGODB_URI || (isVercel ? MONGODB_URI_SRV : MON
 
 const JWT_SECRET = process.env.JWT_SECRET || "kalaam_library_super_secret_key_12345";
 process.env.JWT_SECRET = JWT_SECRET;
+
+const googleClient = new OAuth2Client(process.env.VITE_GOOGLE_CLIENT_ID);
 
 // Middleware
 app.use(cors());
@@ -254,6 +257,71 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
+// POST /api/auth/google
+app.post('/api/auth/google', async (req, res) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ message: 'Google credential is required' });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.VITE_GOOGLE_CLIENT_ID,
+    });
+    
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    let user = await User.findOne({ 
+      $or: [{ googleId }, { email }]
+    });
+
+    if (user) {
+      // Update existing user with Google details if they don't have them
+      let updated = false;
+      if (!user.googleId) { user.googleId = googleId; updated = true; }
+      if (!user.profilePicture && picture) { user.profilePicture = picture; updated = true; }
+      if (!user.email) { user.email = email; updated = true; }
+      if (updated) await user.save();
+    } else {
+      // Create new user
+      const adminExists = await User.exists({ isAdmin: true });
+      user = new User({
+        googleId,
+        email,
+        displayName: name || '',
+        profilePicture: picture || '',
+        isAdmin: !adminExists // First user becomes admin
+      });
+      await user.save();
+    }
+
+    // Create JWT token
+    const token = jwt.sign(
+      { id: user._id.toString(), email: user.email, isAdmin: user.isAdmin },
+      process.env.JWT_SECRET || 'kalaam_library_super_secret_key_12345',
+      { expiresIn: '1h' }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        mobile: user.mobile,
+        displayName: user.displayName,
+        profilePicture: user.profilePicture,
+        isAdmin: user.isAdmin,
+        favorites: user.favorites ? user.favorites.map(id => id.toString()) : []
+      }
+    });
+  } catch (err) {
+    console.error('Google Auth Error:', err);
+    res.status(500).json({ message: 'Error authenticating with Google' });
+  }
+});
+
 // POST /api/auth/login
 app.post('/api/auth/login', async (req, res) => {
   try {
@@ -347,6 +415,37 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 
+// PUT /api/auth/me/profile
+app.put('/api/auth/me/profile', auth, async (req, res) => {
+  try {
+    const { displayName, mobile, profilePicture } = req.body;
+    const user = await User.findById(req.user._id);
+    
+    if (displayName !== undefined) user.displayName = displayName;
+    if (mobile !== undefined) user.mobile = mobile;
+    if (profilePicture !== undefined) user.profilePicture = profilePicture;
+    
+    await user.save();
+    
+    res.json({
+      success: true,
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        mobile: user.mobile,
+        profilePicture: user.profilePicture,
+        displayName: user.displayName,
+        isAdmin: user.isAdmin,
+        favorites: user.favorites ? user.favorites.map(id => id.toString()) : []
+      }
+    });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ message: 'Error updating profile' });
+  }
+});
+
+
 // --- ADMIN MANAGEMENT ROUTES ---
 
 // GET /api/admin/users
@@ -357,6 +456,8 @@ app.get('/api/admin/users', auth, admin, async (req, res) => {
     const formattedUsers = users.map(u => ({
       id: u._id.toString(),
       mobile: u.mobile,
+      email: u.email,
+      profilePicture: u.profilePicture,
       displayName: u.displayName,
       isAdmin: u.isAdmin,
       createdAt: u.createdAt

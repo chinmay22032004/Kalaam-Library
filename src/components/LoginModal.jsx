@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function LoginModal({ api, open, close, onLogin, showToast }) {
   const [tab, setTab] = useState("login");
@@ -75,6 +76,21 @@ export default function LoginModal({ api, open, close, onLogin, showToast }) {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    try {
+      const { token, user } = await api.loginWithGoogle(credentialResponse.credential);
+      onLogin({ token, user });
+      reset();
+      close();
+      showToast("Logged in with Google successfully.");
+    } catch (err) {
+      showToast(err?.message || "Google Login failed", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
@@ -100,7 +116,21 @@ export default function LoginModal({ api, open, close, onLogin, showToast }) {
           </button>
         </div>
 
-        <div className="p-4">
+        <div className="p-4 flex flex-col items-center">
+          <div className="w-full mb-4 flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => showToast("Google Login Failed", "error")}
+              theme="filled_black"
+              shape="pill"
+            />
+          </div>
+          <div className="flex items-center w-full gap-2 mb-4">
+            <div className="flex-1 h-px bg-[#FFD59F]/20"></div>
+            <span className="text-[#FFD59F]/50 text-xs uppercase">or</span>
+            <div className="flex-1 h-px bg-[#FFD59F]/20"></div>
+          </div>
+          <div className="w-full">
           {tab === "login" ? (
             <form onSubmit={handleLogin} className="space-y-3">
               <label className="text-xs" htmlFor="login-mobile">
@@ -218,6 +248,7 @@ export default function LoginModal({ api, open, close, onLogin, showToast }) {
               </div>
             </form>
           )}
+          </div>
         </div>
       </div>
     </div>

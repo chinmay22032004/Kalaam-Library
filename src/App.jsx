@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   XCircle,
   UserCog,
+  User,
 } from "lucide-react";
 // Instagram and Youtube icons removed (not exported by lucide-react build)
 import { api } from "./api/api";
@@ -20,6 +21,7 @@ import BookRow from "./components/BookRow";
 import BookDetailsModal from "./components/BookDetailsModal";
 import AdminDashboard from "./components/AdminDashboard";
 import LoginModal from "./components/LoginModal";
+import EditProfileModal from "./components/EditProfileModal";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
@@ -35,9 +37,11 @@ export default function App() {
   const [authToken, setAuthToken] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [adminTransferMessage, setAdminTransferMessage] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState({ english: "", hindi: "" });
+  const [selectedGenre, setSelectedGenre] = useState("");
   const [bookModal, setBookModal] = useState({
     isOpen: false,
     bookId: null,
@@ -75,6 +79,7 @@ export default function App() {
       return;
     }
     setActiveTab(tab);
+    setSelectedGenre("");
     setIsMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -182,25 +187,41 @@ export default function App() {
       books.filter(
         (b) =>
           b.language === "english" &&
+          (selectedGenre === "" || b.genre.trim().toLowerCase() === selectedGenre.toLowerCase()) &&
           (b.title.toLowerCase().includes(searchQuery.english.toLowerCase()) ||
             b.author.toLowerCase().includes(searchQuery.english.toLowerCase())),
       ),
-    [books, searchQuery.english],
+    [books, searchQuery.english, selectedGenre],
   );
   const hindiBooks = useMemo(
     () =>
       books.filter(
         (b) =>
           b.language === "hindi" &&
+          (selectedGenre === "" || b.genre.trim().toLowerCase() === selectedGenre.toLowerCase()) &&
           (b.title.toLowerCase().includes(searchQuery.hindi.toLowerCase()) ||
             b.author.toLowerCase().includes(searchQuery.hindi.toLowerCase())),
       ),
-    [books, searchQuery.hindi],
+    [books, searchQuery.hindi, selectedGenre],
   );
   const favoriteBooks = useMemo(
     () => books.filter((b) => favorites.includes(b.id)),
     [books, favorites],
   );
+
+  const availableGenres = useMemo(() => {
+    if (activeTab !== "english" && activeTab !== "hindi") return [];
+    const filteredBooks = books.filter(b => b.language === activeTab);
+    const genres = filteredBooks.map(b => b.genre.trim());
+    const uniqueGenresMap = new Map();
+    genres.forEach(g => {
+      const lower = g.toLowerCase();
+      if (!uniqueGenresMap.has(lower)) {
+        uniqueGenresMap.set(lower, g);
+      }
+    });
+    return Array.from(uniqueGenresMap.values()).sort();
+  }, [books, activeTab]);
 
   if (loadingInitial) {
     return (
@@ -264,6 +285,23 @@ export default function App() {
               className="px-3 py-1.5 rounded font-bold text-sm bg-red-800 text-[#FFD59F] hover:bg-red-700 transition flex items-center gap-1"
             >
               <Unlock className="w-4 h-4" /> ADMIN
+            </button>
+          )}
+          {currentUser && (
+            <button
+              onClick={() => setEditProfileOpen(true)}
+              className="ml-2 relative w-9 h-9 rounded-full border-2 border-[#4E1A27] bg-[#4E1A27] text-[#FFD59F] flex items-center justify-center overflow-hidden hover:opacity-80 transition group shadow-sm"
+              title="Edit Profile"
+            >
+              {currentUser.profilePicture ? (
+                <img src={currentUser.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-5 h-5" />
+              )}
+              {/* Optional overlay hint on hover for desktop */}
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                <UserCog className="w-4 h-4 text-white" />
+              </div>
             </button>
           )}
         </nav>
@@ -341,6 +379,24 @@ export default function App() {
               ADMIN DASHBOARD
             </button>
           )}
+          {currentUser && (
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                setEditProfileOpen(true);
+              }}
+              className="flex items-center justify-center gap-3 py-3 px-4 border-2 border-[#4E1A27] text-[#4E1A27] hover:bg-[#4E1A27] hover:text-[#FFD59F] rounded transition shadow-md mt-2 font-bold"
+            >
+              <div className="w-8 h-8 rounded-full overflow-hidden border border-current flex items-center justify-center bg-current">
+                {currentUser.profilePicture ? (
+                  <img src={currentUser.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-5 h-5 text-white" />
+                )}
+              </div>
+              Edit Profile
+            </button>
+          )}
         </div>
       )}
 
@@ -391,12 +447,12 @@ export default function App() {
                   <Quote className="absolute -top-2 left-0 md:-left-6 w-6 h-6 md:w-12 md:h-12 text-[#FFD59F]/10 transform -scale-x-100 hidden sm:block" />
                   <Quote className="absolute -bottom-2 right-0 md:-right-6 w-6 h-6 md:w-12 md:h-12 text-[#FFD59F]/10 hidden sm:block" />
 
-                  <p className="font-serif text-base sm:text-3xl lg:text-4xl leading-relaxed md:leading-[1.7] font-bold text-[#FFD59F] drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)] pt-2 relative z-10 w-full">
+                  <p className="font-poetic text-base sm:text-3xl lg:text-4xl leading-relaxed md:leading-[1.7] font-bold text-[#FFD59F] drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)] pt-2 relative z-10 w-full">
                     मैं अकेला ही चला था जानिब-ए-मंज़िल मगर
                     <br />
                     लोग साथ आते गए और कारवाँ बनता गया
                   </p>
-                  <p className="font-serif text-sm sm:text-base text-[#e6b87e] font-semibold tracking-wider opacity-90 drop-shadow-md pt-1 relative z-10">
+                  <p className="font-poetic text-sm sm:text-base text-[#e6b87e] font-semibold tracking-wider opacity-90 drop-shadow-md pt-1 relative z-10">
                     — मजरूह सुल्तानपुरी —
                   </p>
                 </div>
@@ -452,10 +508,10 @@ export default function App() {
                     <Lightbulb className="w-3 h-3" /> {settings?.quote?.title}
                   </div>
                   <Quote className="w-6 h-6 sm:w-8 sm:h-8 opacity-30 transform -scale-x-100" />
-                  <p className="font-serif italic font-semibold text-base sm:text-lg leading-snug whitespace-pre-wrap">
-                    "{settings?.quote?.quote}"
+                  <p className="font-poetic font-semibold text-base sm:text-lg leading-snug whitespace-pre-wrap">
+                    {settings?.quote?.quote}
                   </p>
-                  <p className="text-[10px] sm:text-xs font-bold tracking-wider uppercase opacity-80 text-right">
+                  <p className="font-poetic text-sm sm:text-base font-bold tracking-wider opacity-80 text-right">
                     - {settings?.quote?.author}
                   </p>
                 </div>
@@ -594,20 +650,35 @@ export default function App() {
                   {activeTab} Cloud Library
                 </h1>
               </div>
-              <div className="relative w-full sm:w-64 shrink-0">
-                <input
-                  type="text"
-                  value={searchQuery[activeTab]}
-                  onChange={(e) =>
-                    setSearchQuery({
-                      ...searchQuery,
-                      [activeTab]: e.target.value,
-                    })
-                  }
-                  placeholder="Search title or author..."
-                  className="w-full bg-[#6a2536]/40 border border-[#FFD59F]/30 text-[#FFD59F] placeholder-[#FFD59F]/60 text-xs sm:text-sm px-4 py-2.5 sm:py-2 rounded-lg focus:outline-none focus:border-[#FFD59F] transition"
-                />
-                <Search className="absolute right-3 top-3 sm:top-2.5 w-4 h-4 text-[#FFD59F]/60" />
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto shrink-0">
+                <div className="relative w-full sm:w-48 shrink-0">
+                  <select
+                    value={selectedGenre}
+                    onChange={(e) => setSelectedGenre(e.target.value)}
+                    className="w-full bg-[#6a2536]/40 border border-[#FFD59F]/30 text-[#FFD59F] text-xs sm:text-sm px-3 py-2.5 sm:py-2 rounded-lg focus:outline-none focus:border-[#FFD59F] transition appearance-none"
+                  >
+                    <option value="">All Genres</option>
+                    {availableGenres.map((genre, idx) => (
+                      <option key={idx} value={genre.toLowerCase()}>{genre}</option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-3 sm:top-2.5 pointer-events-none text-[#FFD59F]/60 text-xs">▼</div>
+                </div>
+                <div className="relative w-full sm:w-64 shrink-0">
+                  <input
+                    type="text"
+                    value={searchQuery[activeTab]}
+                    onChange={(e) =>
+                      setSearchQuery({
+                        ...searchQuery,
+                        [activeTab]: e.target.value,
+                      })
+                    }
+                    placeholder="Search title or author..."
+                    className="w-full bg-[#6a2536]/40 border border-[#FFD59F]/30 text-[#FFD59F] placeholder-[#FFD59F]/60 text-xs sm:text-sm px-4 py-2.5 sm:py-2 rounded-lg focus:outline-none focus:border-[#FFD59F] transition"
+                  />
+                  <Search className="absolute right-3 top-3 sm:top-2.5 w-4 h-4 text-[#FFD59F]/60" />
+                </div>
               </div>
             </div>
 
@@ -815,6 +886,18 @@ export default function App() {
         open={loginModalOpen}
         close={() => setLoginModalOpen(false)}
         onLogin={handleAuthLogin}
+        showToast={showToast}
+      />
+
+      <EditProfileModal
+        api={api}
+        token={authToken}
+        currentUser={currentUser}
+        open={editProfileOpen}
+        close={() => setEditProfileOpen(false)}
+        onSuccess={(updatedUser) => {
+          setCurrentUser(updatedUser);
+        }}
         showToast={showToast}
       />
     </div>

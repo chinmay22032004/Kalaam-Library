@@ -50,6 +50,16 @@ export const api = {
     return handleResponse(res);
   },
 
+  // Login with Google -> returns { token, user }
+  loginWithGoogle: async (credential) => {
+    const res = await fetch('/api/auth/google', {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ credential })
+    });
+    return handleResponse(res);
+  },
+
   logout: async (token) => {
     try {
       const res = await fetch('/api/auth/logout', {
@@ -67,6 +77,15 @@ export const api = {
     const res = await fetch('/api/auth/me', {
       method: 'GET',
       headers: getHeaders(token)
+    });
+    return handleResponse(res);
+  },
+
+  updateProfile: async (data, token) => {
+    const res = await fetch('/api/auth/me/profile', {
+      method: 'PUT',
+      headers: getHeaders(token),
+      body: JSON.stringify(data)
     });
     return handleResponse(res);
   },
