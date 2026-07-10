@@ -61,6 +61,7 @@ export default function AdminDashboard({
   };
 
   const handleDeleteBook = async (id, title) => {
+    if (!window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) return;
     try {
       await api.deleteBook(id, token);
       setBooks(books.filter((b) => b.id !== id));
