@@ -22,8 +22,9 @@ const PORT = process.env.PORT || 5000;
 const MONGODB_URI_SRV = "mongodb+srv://chinmay22032004:Chs%402203@cluster0.dsk00ft.mongodb.net/kalaam?appName=Cluster0";
 const MONGODB_URI_DIRECT = 'mongodb://chinmay22032004:Chs%402203@ac-k0mbdu5-shard-00-00.dsk00ft.mongodb.net:27017,ac-k0mbdu5-shard-00-01.dsk00ft.mongodb.net:27017,ac-k0mbdu5-shard-00-02.dsk00ft.mongodb.net:27017/kalaam?ssl=true&replicaSet=atlas-npn8xq-shard-0&authSource=admin&retryWrites=true&w=majority&appName=Cluster0';
 
-// Use direct string for both Vercel and local dev to prevent DNS SRV timeouts
-const MONGODB_URI = process.env.MONGODB_URI || MONGODB_URI_DIRECT;
+// Force direct string for both Vercel and local dev to prevent DNS SRV timeouts
+// We ignore process.env.MONGODB_URI to guarantee the direct string is used
+const MONGODB_URI = MONGODB_URI_DIRECT;
 
 const JWT_SECRET = process.env.JWT_SECRET || "kalaam_library_super_secret_key_12345";
 process.env.JWT_SECRET = JWT_SECRET;
