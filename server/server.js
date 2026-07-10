@@ -35,12 +35,43 @@ const googleClient = new OAuth2Client(process.env.VITE_GOOGLE_CLIENT_ID);
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(MONGODB_URI, { 
-  serverSelectionTimeoutMS: 10000,
-  family: 4 // Force IPv4 to prevent Vercel DNS/IPv6 routing timeouts
-})
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+let cached = global.mongoose;
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+async function connectDB() {
+  if (cached.conn) return cached.conn;
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI, { 
+      serverSelectionTimeoutMS: 5000,
+      family: 4 
+    }).then((m) => {
+      console.log('MongoDB connected successfully');
+      return m;
+    });
+  }
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+  return cached.conn;
+}
+
+// Ensure DB connection before handling any API routes
+app.use(async (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    try {
+      await connectDB();
+    } catch (err) {
+      console.error('MongoDB connection error:', err);
+      return res.status(500).json({ message: 'Database connection failed' });
+    }
+  }
+  next();
+});
 
 // --- SETTINGS ROUTES ---
 
