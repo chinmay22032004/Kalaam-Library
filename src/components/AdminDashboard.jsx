@@ -248,21 +248,43 @@ export default function AdminDashboard({
     </div>
   );
 
-  const renderBooks = () => (
-    <div className="bg-[#4E1A27] border border-[#FFD59F]/30 rounded-xl overflow-hidden animate-[fadeIn_0.3s_ease-out] shadow-xl">
-      <div className="p-4 sm:p-6 border-b border-[#FFD59F]/20 bg-[#6a2536]/20 flex items-center justify-between">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <BookOpen className="w-6 h-6" /> Existing Books
-        </h2>
-        <button onClick={() => setActiveView("grid")} className="flex items-center gap-1 text-sm bg-[#6a2536] hover:bg-[#FFD59F]/20 px-3 py-1.5 rounded transition border border-[#FFD59F]/30 shadow">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
-      </div>
-      <div className="p-4 sm:p-6 space-y-4">
-        {books.length === 0 ? (
-          <p className="text-center py-6 text-[#FFD59F]/60">Library is empty.</p>
-        ) : (
-          <div className="grid grid-cols-1 gap-4">
+  const renderBooks = () => {
+    const totalEnglish = books.filter(b => b.language === 'english').reduce((sum, b) => sum + (b.copies || 1), 0);
+    const totalHindi = books.filter(b => b.language === 'hindi').reduce((sum, b) => sum + (b.copies || 1), 0);
+    const totalBooks = totalEnglish + totalHindi;
+
+    return (
+      <div className="bg-[#4E1A27] border border-[#FFD59F]/30 rounded-xl overflow-hidden animate-[fadeIn_0.3s_ease-out] shadow-xl">
+        <div className="p-4 sm:p-6 border-b border-[#FFD59F]/20 bg-[#6a2536]/20 flex items-center justify-between">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <BookOpen className="w-6 h-6" /> Existing Books
+          </h2>
+          <button onClick={() => setActiveView("grid")} className="flex items-center gap-1 text-sm bg-[#6a2536] hover:bg-[#FFD59F]/20 px-3 py-1.5 rounded transition border border-[#FFD59F]/30 shadow">
+            <ArrowLeft className="w-4 h-4" /> Back
+          </button>
+        </div>
+        
+        <div className="p-4 sm:p-6 space-y-6">
+          {/* Library Stats */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 bg-[#6a2536]/30 p-3 sm:p-4 rounded-lg border border-[#FFD59F]/20">
+            <div className="flex flex-col items-center text-center">
+              <span className="text-xs sm:text-sm text-[#FFD59F]/80 font-semibold uppercase tracking-wider">English</span>
+              <span className="text-2xl sm:text-3xl font-bold text-[#FFD59F]">{totalEnglish}</span>
+            </div>
+            <div className="flex flex-col items-center text-center border-l border-r border-[#FFD59F]/20">
+              <span className="text-xs sm:text-sm text-[#FFD59F]/80 font-semibold uppercase tracking-wider">Hindi/Urdu</span>
+              <span className="text-2xl sm:text-3xl font-bold text-[#FFD59F]">{totalHindi}</span>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <span className="text-xs sm:text-sm text-[#FFD59F]/80 font-semibold uppercase tracking-wider">Total</span>
+              <span className="text-2xl sm:text-3xl font-bold text-[#FFD59F]">{totalBooks}</span>
+            </div>
+          </div>
+
+          {books.length === 0 ? (
+            <p className="text-center py-6 text-[#FFD59F]/60">Library is empty.</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
             {books.map((book) => (
               <div key={book.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-[#6a2536]/30 p-4 rounded-lg border border-[#FFD59F]/10 gap-4">
                 <div className="flex items-center gap-4">
@@ -315,6 +337,7 @@ export default function AdminDashboard({
       </div>
     </div>
   );
+};
 
   const renderContent = () => (
     <div className="bg-[#4E1A27] border border-[#FFD59F]/30 rounded-xl overflow-hidden animate-[fadeIn_0.3s_ease-out] shadow-xl">
