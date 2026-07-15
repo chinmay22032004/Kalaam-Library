@@ -216,7 +216,7 @@ export default function AdminDashboard({
       {[
         { id: "users", title: "Users Data", icon: Users, desc: "Manage registered users and permissions" },
         { id: "books", title: "Existing Books", icon: BookOpen, desc: "Issue, return, edit and delete books in the library" },
-        { id: "content", title: "Site Content", icon: Layout, desc: "Edit the About page, Spotlight, and Quotes" },
+        { id: "content", title: "Site Content", icon: Layout, desc: "Edit the about page, spotlight and quotes" },
         { id: "add", title: "Add New Book", icon: PlusCircle, desc: "Insert a new book into the cloud library" }
       ].map((card) => (
         <button
