@@ -815,7 +815,7 @@ export default function App() {
 
       <footer className="fixed bottom-0 left-0 w-full h-14 bg-[#FFD59F] text-[#4E1A27] flex items-center justify-between px-3 sm:px-8 z-40 shadow-inner">
         <span className="text-[9px] sm:text-xs font-semibold tracking-wider">
-          © 2026 KALAAM - <a href="https://sac.nitrkl.ac.in/" target="_blank" rel="noopener noreferrer" className="hover:underline">SAC NITR</a>
+          <a href="https://sac.nitrkl.ac.in/" target="_blank" rel="noopener noreferrer" className="hover:underline">SAC NITR</a>
         </span>
         <div className="flex items-center gap-3 sm:gap-6 text-sm">
           {!currentUser ? (
