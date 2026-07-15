@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { 
-  Shield, CloudUpload, Loader, Trash2, 
+  Shield, CloudUpload, Loader, Trash2, Edit, Save,
   ArrowLeft, Users, BookOpen, Layout, PlusCircle 
 } from "lucide-react";
 
@@ -16,7 +16,13 @@ export default function AdminDashboard({
   settings,
   onSettingsChange,
 }) {
-  const [activeView, setActiveView] = useState("grid"); // grid, users, books, content, add
+  const [activeView, setActiveView] = useState("grid"); // grid, users, books, content, add, edit
+
+  const [editingBookId, setEditingBookId] = useState(null);
+  const [editBookForm, setEditBookForm] = useState({
+    title: "", author: "", genre: "", language: "english",
+    givenBy: "", coverUrl: "", summary: "", copies: 1,
+  });
 
   const [loading, setLoading] = useState(false);
   const [usersList, setUsersList] = useState([]);
@@ -40,6 +46,37 @@ export default function AdminDashboard({
   const [quoteForm, setQuoteForm] = useState({
     title: "Thought of the Day", quote: "", author: "",
   });
+
+  const handleEditClick = (book) => {
+    setEditingBookId(book.id);
+    setEditBookForm({
+      title: book.title || "",
+      author: book.author || "",
+      genre: book.genre || "",
+      language: book.language || "english",
+      givenBy: book.givenBy || "",
+      coverUrl: book.coverUrl || "",
+      summary: book.summary || "",
+      copies: book.copies || 1,
+    });
+    setActiveView("edit");
+  };
+
+  const handleUpdateBook = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const updatedBook = await api.updateBook(editingBookId, editBookForm, token);
+      setBooks(books.map(b => b.id === editingBookId ? updatedBook : b));
+      showToast("Book updated successfully.");
+      setActiveView("books");
+      setEditingBookId(null);
+    } catch {
+      showToast("Error updating book.", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddBook = async (e) => {
     e.preventDefault();
@@ -313,6 +350,9 @@ export default function AdminDashboard({
                       ))}
                     </select>
                   )}
+                  <button onClick={() => handleEditClick(book)} className="w-full sm:w-10 h-10 rounded border border-blue-500/50 text-blue-400 hover:bg-blue-500 hover:text-white transition flex items-center justify-center shadow-sm" title="Edit Book">
+                    <Edit className="w-4 h-4" />
+                  </button>
                   <button onClick={() => handleDeleteBook(book.id, book.title)} className="w-full sm:w-10 h-10 rounded border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center shadow-sm" title="Delete Book">
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -392,6 +432,44 @@ export default function AdminDashboard({
     </div>
   );
 
+  const renderEditBook = () => (
+    <div className="bg-[#4E1A27] border border-[#FFD59F]/30 rounded-xl overflow-hidden max-w-2xl mx-auto animate-[fadeIn_0.3s_ease-out] shadow-xl">
+      <div className="p-4 sm:p-6 border-b border-[#FFD59F]/20 bg-[#6a2536]/20 flex items-center justify-between">
+        <h2 className="text-xl font-bold flex items-center gap-2">
+          <Edit className="w-6 h-6" /> Edit Book
+        </h2>
+        <button onClick={() => { setActiveView("books"); setEditingBookId(null); }} className="flex items-center gap-1 text-sm bg-[#6a2536] hover:bg-[#FFD59F]/20 px-3 py-1.5 rounded transition border border-[#FFD59F]/30 shadow">
+          <ArrowLeft className="w-4 h-4" /> Back
+        </button>
+      </div>
+      <div className="p-4 sm:p-6">
+        <form onSubmit={handleUpdateBook} className="space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Title</label><input required value={editBookForm.title} onChange={e => setEditBookForm({...editBookForm, title: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
+            <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Author</label><input required value={editBookForm.author} onChange={e => setEditBookForm({...editBookForm, author: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
+            <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Genre</label><input required value={editBookForm.genre} onChange={e => setEditBookForm({...editBookForm, genre: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
+            <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Given By</label><input required value={editBookForm.givenBy} onChange={e => setEditBookForm({...editBookForm, givenBy: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
+          </div>
+          <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Summary</label><textarea rows={4} value={editBookForm.summary} onChange={e => setEditBookForm({...editBookForm, summary: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" placeholder="Add a book summary" /></div>
+          <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Cover Image URL</label><input value={editBookForm.coverUrl} onChange={e => setEditBookForm({...editBookForm, coverUrl: e.target.value})} placeholder="Paste the book image address here" className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Language</label>
+              <select value={editBookForm.language} onChange={e => setEditBookForm({...editBookForm, language: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none">
+                <option value="english">English</option>
+                <option value="hindi">Hindi/Urdu</option>
+              </select>
+            </div>
+            <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Number of Copies</label><input type="number" min="1" value={editBookForm.copies} onChange={e => setEditBookForm({...editBookForm, copies: parseInt(e.target.value) || 1})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
+          </div>
+          <button disabled={loading} type="submit" className="w-full bg-[#FFD59F] text-[#4E1A27] font-bold py-4 rounded-lg hover:bg-[#e6b87e] transition shadow-md flex justify-center items-center gap-2 mt-4 text-lg">
+            {loading ? <Loader className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Save Changes
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+
   const renderAddBook = () => (
     <div className="bg-[#4E1A27] border border-[#FFD59F]/30 rounded-xl overflow-hidden max-w-2xl mx-auto animate-[fadeIn_0.3s_ease-out] shadow-xl">
       <div className="p-4 sm:p-6 border-b border-[#FFD59F]/20 bg-[#6a2536]/20 flex items-center justify-between">
@@ -449,6 +527,7 @@ export default function AdminDashboard({
       {activeView === "books" && renderBooks()}
       {activeView === "content" && renderContent()}
       {activeView === "add" && renderAddBook()}
+      {activeView === "edit" && renderEditBook()}
       
     </section>
   );
