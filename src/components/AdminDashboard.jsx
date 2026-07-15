@@ -215,7 +215,7 @@ export default function AdminDashboard({
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 animate-[fadeIn_0.3s_ease-out]">
       {[
         { id: "users", title: "Users Data", icon: Users, desc: "Manage registered users and permissions" },
-        { id: "books", title: "Existing Books", icon: BookOpen, desc: "Issue, return, and delete books in the library" },
+        { id: "books", title: "Existing Books", icon: BookOpen, desc: "Issue, return, edit and delete books in the library" },
         { id: "content", title: "Site Content", icon: Layout, desc: "Edit the About page, Spotlight, and Quotes" },
         { id: "add", title: "Add New Book", icon: PlusCircle, desc: "Insert a new book into the cloud library" }
       ].map((card) => (
