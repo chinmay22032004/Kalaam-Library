@@ -109,7 +109,7 @@ export default function App() {
 
   const handleLogout = async () => {
     if (!authToken) return;
-    await api.logout(authToken).catch(() => {});
+    await api.logout(authToken).catch(() => { });
     setAuthToken(null);
     setCurrentUser(null);
     setFavorites([]);
@@ -166,7 +166,7 @@ export default function App() {
       showToast("Please login to manage favorites.", "info");
       return;
     }
-    
+
     try {
       if (favorites.includes(id)) {
         setFavorites(favorites.filter((favId) => favId !== id));

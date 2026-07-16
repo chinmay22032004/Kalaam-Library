@@ -19,7 +19,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Environment fallbacks
-const MONGODB_URI_SRV = "mongodb+srv://chinmay22032004:Chs%402203@cluster0.dsk00ft.mongodb.net/kalaam?appName=Cluster0";
 const MONGODB_URI_DIRECT = 'mongodb://chinmay22032004:Chs%402203@ac-k0mbdu5-shard-00-00.dsk00ft.mongodb.net:27017,ac-k0mbdu5-shard-00-01.dsk00ft.mongodb.net:27017,ac-k0mbdu5-shard-00-02.dsk00ft.mongodb.net:27017/kalaam?ssl=true&replicaSet=atlas-npn8xq-shard-0&authSource=admin&retryWrites=true&w=majority&appName=Cluster0';
 
 // Force direct string for both Vercel and local dev to prevent DNS SRV timeouts

@@ -48,6 +48,7 @@ export default function EditProfileModal({ api, token, currentUser, open, close,
 
   useEffect(() => {
     if (open && currentUser) {
+      // eslint-disable-next-line
       setName(currentUser.displayName || "");
       setMobile(currentUser.mobile || "");
       setProfilePicture(currentUser.profilePicture || "");
@@ -81,7 +82,7 @@ export default function EditProfileModal({ api, token, currentUser, open, close,
       const croppedImageBase64 = await getCroppedImg(imageSrc, croppedAreaPixels);
       setProfilePicture(croppedImageBase64);
       setImageSrc(null); // Close crop view
-    } catch (e) {
+    } catch {
       showToast("Failed to crop image", "error");
     }
   };
