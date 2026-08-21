@@ -36,11 +36,6 @@ export default function AdminDashboard({
     givenBy: "", coverUrl: "", summary: "", copies: 1,
   });
   
-  const [aboutForm, setAboutForm] = useState({
-    mission: "", pillar1Title: "", pillar1Desc: "",
-    pillar2Title: "", pillar2Desc: "",
-  });
-  
   const [spotlightForm, setSpotlightForm] = useState({
     title: "Spotlight: Historical Poet of the Day", name: "", description: "",
   });
@@ -157,7 +152,6 @@ export default function AdminDashboard({
   useEffect(() => {
     if (!settings) return;
     const id = window.setTimeout(() => {
-      if (settings.about) setAboutForm({ ...settings.about });
       if (settings.spotlight) setSpotlightForm({ ...settings.spotlight });
       if (settings.quote) setQuoteForm({ ...settings.quote });
     }, 0);
@@ -205,14 +199,12 @@ export default function AdminDashboard({
     e.preventDefault();
     setAboutLoading(true);
     try {
-      const [updatedAbout, updatedSpotlight, updatedQuote] = await Promise.all([
-        api.updateSettings("about", aboutForm, token),
+      const [updatedSpotlight, updatedQuote] = await Promise.all([
         api.updateSettings("spotlight", spotlightForm, token),
         api.updateSettings("quote", quoteForm, token),
       ]);
       onSettingsChange?.({
         ...settings,
-        about: updatedAbout,
         spotlight: updatedSpotlight,
         quote: updatedQuote,
       });
@@ -443,20 +435,7 @@ export default function AdminDashboard({
             </div>
           </div>
 
-          <div className="bg-[#6a2536]/30 p-5 rounded-lg border border-[#FFD59F]/10">
-            <h3 className="text-lg font-bold text-[#FFD59F] mb-4 border-b border-[#FFD59F]/10 pb-2">About Page</h3>
-            <div className="grid grid-cols-1 gap-4">
-              <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Mission Text</label><textarea rows={3} value={aboutForm.mission} onChange={e => setAboutForm({...aboutForm, mission: e.target.value})} className="w-full bg-[#4E1A27] border border-[#FFD59F]/20 rounded p-2 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Pillar 1 Headline</label><input value={aboutForm.pillar1Title} onChange={e => setAboutForm({...aboutForm, pillar1Title: e.target.value})} className="w-full bg-[#4E1A27] border border-[#FFD59F]/20 rounded p-2 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
-                <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Pillar 1 Detail</label><textarea rows={2} value={aboutForm.pillar1Desc} onChange={e => setAboutForm({...aboutForm, pillar1Desc: e.target.value})} className="w-full bg-[#4E1A27] border border-[#FFD59F]/20 rounded p-2 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Pillar 2 Headline</label><input value={aboutForm.pillar2Title} onChange={e => setAboutForm({...aboutForm, pillar2Title: e.target.value})} className="w-full bg-[#4E1A27] border border-[#FFD59F]/20 rounded p-2 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
-                <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Pillar 2 Detail</label><textarea rows={2} value={aboutForm.pillar2Desc} onChange={e => setAboutForm({...aboutForm, pillar2Desc: e.target.value})} className="w-full bg-[#4E1A27] border border-[#FFD59F]/20 rounded p-2 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
-              </div>
-            </div>
-          </div>
+          
           <button type="submit" disabled={aboutLoading} className="w-full bg-[#FFD59F] text-[#4E1A27] font-bold py-4 rounded-lg hover:bg-[#e6b87e] transition text-lg shadow-lg">
             {aboutLoading ? "Saving..." : "Save All Site Content"}
           </button>

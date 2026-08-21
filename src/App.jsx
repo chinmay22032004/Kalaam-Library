@@ -529,7 +529,7 @@ export default function App() {
                 Kalaam - The Official Poetry Club of NIT Rourkela
               </h1>
               <p className="text-xs sm:text-sm text-gray-300 font-light leading-relaxed whitespace-pre-wrap">
-                {settings?.about?.mission}
+                Kalaam is the official poetry club of NIT Rourkela. We aim to foster a culture of creative expression, literature, and art. We preserve our linguistic heritage and provide a platform for young voices.
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
@@ -542,10 +542,10 @@ export default function App() {
                     <CheckCircle className="text-[#FFD59F] w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
                     <div>
                       <h4 className="font-semibold text-sm sm:text-base">
-                        {settings?.about?.pillar1Title}
+                        Creative Expression
                       </h4>
                       <p className="text-gray-300 text-[11px] sm:text-xs mt-0.5">
-                        {settings?.about?.pillar1Desc}
+                        Empowering students.
                       </p>
                     </div>
                   </li>
@@ -553,10 +553,10 @@ export default function App() {
                     <CheckCircle className="text-[#FFD59F] w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
                     <div>
                       <h4 className="font-semibold text-sm sm:text-base">
-                        {settings?.about?.pillar2Title}
+                        Historical Preservation
                       </h4>
                       <p className="text-gray-300 text-[11px] sm:text-xs mt-0.5">
-                        {settings?.about?.pillar2Desc}
+                        Showcasing Urdu, Hindi, and English masterpieces.
                       </p>
                     </div>
                   </li>

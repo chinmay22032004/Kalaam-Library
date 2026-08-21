@@ -81,13 +81,6 @@ app.get('/api/settings', async (req, res) => {
     
     // Provide defaults if database is not seeded
     const response = {
-      about: settingsObj.about || {
-        mission: "Kalaam is the official poetry club of NIT Rourkela.",
-        pillar1Title: "Creative Expression",
-        pillar1Desc: "Empowering students.",
-        pillar2Title: "Historical Preservation",
-        pillar2Desc: "Showcasing Urdu, Hindi, and English masterpieces."
-      },
       quote: settingsObj.quote || {
         title: "Thought of the Day",
         quote: "What you seek is seeking you.",
