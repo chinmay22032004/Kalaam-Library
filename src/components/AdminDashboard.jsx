@@ -245,11 +245,18 @@ export default function AdminDashboard({
 
   const renderUsers = () => (
     <div className="bg-[#4E1A27] border border-[#FFD59F]/30 rounded-xl overflow-hidden animate-[fadeIn_0.3s_ease-out] shadow-xl">
-      <div className="p-4 sm:p-6 border-b border-[#FFD59F]/20 bg-[#6a2536]/20 flex items-center justify-between">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <Users className="w-6 h-6" /> Users Data
-        </h2>
-        <button onClick={() => setActiveView("grid")} className="flex items-center gap-1 text-sm bg-[#6a2536] hover:bg-[#FFD59F]/20 px-3 py-1.5 rounded transition border border-[#FFD59F]/30 shadow">
+      <div className="p-4 sm:p-6 border-b border-[#FFD59F]/20 bg-[#6a2536]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
+        <div className="flex items-center gap-4">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Users className="w-6 h-6" /> Users Data
+          </h2>
+          {!loadingUsers && (
+            <span className="bg-[#FFD59F]/20 text-[#FFD59F] text-xs font-bold px-2.5 py-1 rounded-full border border-[#FFD59F]/30 shadow-sm flex items-center gap-1">
+              Total: {usersList.length}
+            </span>
+          )}
+        </div>
+        <button onClick={() => setActiveView("grid")} className="flex items-center gap-1 text-sm bg-[#6a2536] hover:bg-[#FFD59F]/20 px-3 py-1.5 rounded transition border border-[#FFD59F]/30 shadow self-start sm:self-auto">
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
       </div>
