@@ -19,6 +19,8 @@ export default function AdminDashboard({
   const [activeView, setActiveView] = useState("grid"); // grid, users, books, content, add, edit
 
   const [editingBookId, setEditingBookId] = useState(null);
+  const [isNewGenre, setIsNewGenre] = useState(false);
+  const [isEditNewGenre, setIsEditNewGenre] = useState(false);
   const [editBookForm, setEditBookForm] = useState({
     title: "", author: "", genre: "", language: "english",
     givenBy: "", coverUrl: "", summary: "", copies: 1,
@@ -49,6 +51,7 @@ export default function AdminDashboard({
 
   const handleEditClick = (book) => {
     setEditingBookId(book.id);
+    setIsEditNewGenre(false);
     setEditBookForm({
       title: book.title || "",
       author: book.author || "",
@@ -71,6 +74,7 @@ export default function AdminDashboard({
       showToast("Book updated successfully.");
       setActiveView("books");
       setEditingBookId(null);
+      setIsEditNewGenre(false);
     } catch {
       showToast("Error updating book.", "error");
     } finally {
@@ -89,6 +93,7 @@ export default function AdminDashboard({
         title: "", author: "", genre: "", language: "english",
         givenBy: "", coverUrl: "", summary: "", copies: 1,
       });
+      setIsNewGenre(false);
       setActiveView("grid");
     } catch {
       showToast("Error adding book.", "error");
@@ -210,6 +215,8 @@ export default function AdminDashboard({
   };
 
   // --- Sub-Renders ---
+
+  const existingGenres = [...new Set(books.map(b => b.genre).filter(Boolean))].sort();
 
   const renderGrid = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 animate-[fadeIn_0.3s_ease-out]">
@@ -447,7 +454,48 @@ export default function AdminDashboard({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Title</label><input required value={editBookForm.title} onChange={e => setEditBookForm({...editBookForm, title: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
             <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Author</label><input required value={editBookForm.author} onChange={e => setEditBookForm({...editBookForm, author: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
-            <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Genre</label><input required value={editBookForm.genre} onChange={e => setEditBookForm({...editBookForm, genre: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
+            <div>
+              <label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Genre</label>
+              {!isEditNewGenre ? (
+                <select 
+                  required 
+                  value={editBookForm.genre} 
+                  onChange={e => {
+                    if (e.target.value === "___NEW___") {
+                      setIsEditNewGenre(true);
+                      setEditBookForm({ ...editBookForm, genre: "" });
+                    } else {
+                      setEditBookForm({ ...editBookForm, genre: e.target.value });
+                    }
+                  }}
+                  className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none"
+                >
+                  <option value="" disabled>Select a genre...</option>
+                  {existingGenres.map(g => <option key={g} value={g}>{g}</option>)}
+                  <option value="___NEW___" className="font-bold text-[#e6b87e]">+ Add New Genre</option>
+                </select>
+              ) : (
+                <div className="flex gap-2">
+                  <input 
+                    required 
+                    value={editBookForm.genre} 
+                    onChange={e => setEditBookForm({...editBookForm, genre: e.target.value})} 
+                    placeholder="Type new genre..."
+                    className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setIsEditNewGenre(false);
+                      setEditBookForm({ ...editBookForm, genre: existingGenres[0] || "" });
+                    }}
+                    className="bg-[#6a2536] text-[#FFD59F] px-4 rounded text-sm hover:bg-[#FFD59F]/20 transition shrink-0"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
             <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Given By</label><input required value={editBookForm.givenBy} onChange={e => setEditBookForm({...editBookForm, givenBy: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
           </div>
           <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Summary</label><textarea rows={4} value={editBookForm.summary} onChange={e => setEditBookForm({...editBookForm, summary: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" placeholder="Add a book summary" /></div>
@@ -485,7 +533,48 @@ export default function AdminDashboard({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Title</label><input required value={bookForm.title} onChange={e => setBookForm({...bookForm, title: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
             <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Author</label><input required value={bookForm.author} onChange={e => setBookForm({...bookForm, author: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
-            <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Genre</label><input required value={bookForm.genre} onChange={e => setBookForm({...bookForm, genre: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
+            <div>
+              <label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Genre</label>
+              {!isNewGenre ? (
+                <select 
+                  required 
+                  value={bookForm.genre} 
+                  onChange={e => {
+                    if (e.target.value === "___NEW___") {
+                      setIsNewGenre(true);
+                      setBookForm({ ...bookForm, genre: "" });
+                    } else {
+                      setBookForm({ ...bookForm, genre: e.target.value });
+                    }
+                  }}
+                  className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none"
+                >
+                  <option value="" disabled>Select a genre...</option>
+                  {existingGenres.map(g => <option key={g} value={g}>{g}</option>)}
+                  <option value="___NEW___" className="font-bold text-[#e6b87e]">+ Add New Genre</option>
+                </select>
+              ) : (
+                <div className="flex gap-2">
+                  <input 
+                    required 
+                    value={bookForm.genre} 
+                    onChange={e => setBookForm({...bookForm, genre: e.target.value})} 
+                    placeholder="Type new genre..."
+                    className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setIsNewGenre(false);
+                      setBookForm({ ...bookForm, genre: existingGenres[0] || "" });
+                    }}
+                    className="bg-[#6a2536] text-[#FFD59F] px-4 rounded text-sm hover:bg-[#FFD59F]/20 transition shrink-0"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
             <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Given By</label><input required value={bookForm.givenBy} onChange={e => setBookForm({...bookForm, givenBy: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" /></div>
           </div>
           <div><label className="block text-xs font-bold text-[#FFD59F]/80 mb-1">Summary</label><textarea rows={4} value={bookForm.summary} onChange={e => setBookForm({...bookForm, summary: e.target.value})} className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" placeholder="Add a book summary" /></div>
