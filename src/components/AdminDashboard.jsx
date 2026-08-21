@@ -178,6 +178,17 @@ export default function AdminDashboard({
     }
   };
 
+  const handleApproveUser = async (userId, userName) => {
+    try {
+      await api.approveUser(token, userId);
+      const list = await api.getUsers(token);
+      setUsersList(list);
+      showToast(`Approved user ${userName}.`);
+    } catch (err) {
+      showToast(err?.message || "Failed to approve user", "error");
+    }
+  };
+
   const handleDeleteUser = async (userId, userName) => {
     if (!confirm(`Delete user ${userName}? This cannot be undone.`)) return;
     try {
@@ -268,7 +279,7 @@ export default function AdminDashboard({
         ) : (
           <div className="space-y-3">
             {usersList.map((u) => (
-              <div key={u.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#6a2536]/30 p-4 rounded-lg border border-[#FFD59F]/10">
+              <div key={u.id} className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg border ${u.isApproved ? 'bg-[#6a2536]/30 border-[#FFD59F]/10' : 'bg-red-900/40 border-red-500/50'}`}>
                 <div className="flex items-center gap-3">
                   {u.profilePicture ? (
                     <img src={u.profilePicture} alt="User" className="w-12 h-12 rounded-full border-2 border-[#FFD59F]/20 object-cover" />
@@ -281,6 +292,7 @@ export default function AdminDashboard({
                     <div className="font-bold text-[#FFD59F] flex items-center gap-2 text-sm sm:text-base">
                       {u.displayName || "Unknown User"}
                       {u.isAdmin && <span className="text-[10px] px-1.5 py-0.5 bg-yellow-700 text-[#4E1A27] rounded font-bold uppercase">Admin</span>}
+                      {!u.isApproved && <span className="text-[10px] px-1.5 py-0.5 bg-red-600 text-white rounded font-bold uppercase animate-pulse">Pending Approval</span>}
                     </div>
                     <div className="text-xs text-gray-300 flex flex-col sm:flex-row sm:gap-3 mt-1">
                       <span title={u.email}>📧 {u.email || "No Email"}</span>
@@ -288,9 +300,16 @@ export default function AdminDashboard({
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => handleMakeAdmin(u.id)} disabled={u.isAdmin} className="text-xs bg-[#FFD59F] text-[#4E1A27] px-3 py-2 rounded font-bold disabled:opacity-50">Make Admin</button>
-                  <button onClick={() => handleDeleteUser(u.id, u.displayName || u.mobile)} disabled={u.isAdmin || u.id === currentUser?.id} className="text-xs bg-red-600 text-white px-3 py-2 rounded font-bold disabled:opacity-50">Delete</button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {!u.isApproved && (
+                    <button onClick={() => handleApproveUser(u.id, u.displayName || u.mobile)} className="text-xs bg-green-600 text-white px-3 py-2 rounded font-bold">Approve</button>
+                  )}
+                  {u.isApproved && (
+                    <button onClick={() => handleMakeAdmin(u.id)} disabled={u.isAdmin} className="text-xs bg-[#FFD59F] text-[#4E1A27] px-3 py-2 rounded font-bold disabled:opacity-50">Make Admin</button>
+                  )}
+                  <button onClick={() => handleDeleteUser(u.id, u.displayName || u.mobile)} disabled={u.isAdmin || u.id === currentUser?.id} className={`text-xs text-white px-3 py-2 rounded font-bold disabled:opacity-50 ${!u.isApproved ? 'bg-gray-600 hover:bg-gray-500' : 'bg-red-600'}`}>
+                    {!u.isApproved ? 'Reject' : 'Delete'}
+                  </button>
                 </div>
               </div>
             ))}

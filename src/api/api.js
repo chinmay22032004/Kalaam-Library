@@ -111,6 +111,14 @@ export const api = {
     return handleResponse(res);
   },
 
+  approveUser: async (token, userId) => {
+    const res = await fetch(`/api/admin/users/${userId}/approve`, {
+      method: 'PUT',
+      headers: getHeaders(token)
+    });
+    return handleResponse(res);
+  },
+
   deleteUser: async (token, userId) => {
     const res = await fetch(`/api/admin/users/${userId}`, {
       method: 'DELETE',

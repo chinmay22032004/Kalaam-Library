@@ -4,16 +4,22 @@ import { GoogleLogin } from '@react-oauth/google';
 
 export default function LoginModal({ api, open, close, onLogin, showToast }) {
   const [loading, setLoading] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState("");
 
   const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
+    setPendingMessage("");
     try {
       const { token, user } = await api.loginWithGoogle(credentialResponse.credential);
       onLogin({ token, user });
       close();
       showToast("Logged in with Google successfully.");
     } catch (err) {
-      showToast(err?.message || "Google Login failed", "error");
+      if (err?.message?.includes("currently under review")) {
+        setPendingMessage(err.message);
+      } else {
+        showToast(err?.message || "Google Login failed", "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -32,18 +38,29 @@ export default function LoginModal({ api, open, close, onLogin, showToast }) {
         </div>
 
         <div className="p-6 flex flex-col items-center gap-6">
-          <p className="text-sm text-center text-[#FFD59F]/80">
-            Welcome to Kalaam Library! Please sign in using your Google account to access your favorites and issue books.
-          </p>
-          <div className="w-full flex justify-center">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => showToast("Google Login Failed", "error")}
-              theme="filled_black"
-              shape="pill"
-            />
-          </div>
-          {loading && <p className="text-xs text-[#FFD59F]/50 animate-pulse">Authenticating...</p>}
+          {pendingMessage ? (
+            <div className="bg-yellow-900/30 border border-yellow-500/50 p-4 rounded-lg text-center animate-[fadeIn_0.3s_ease-out]">
+              <h3 className="text-yellow-400 font-bold mb-2">Access Pending</h3>
+              <p className="text-sm text-gray-300 leading-relaxed">
+                {pendingMessage}
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-center text-[#FFD59F]/80">
+                Welcome to Kalaam Library! Please sign in using your Google account to access your favorites and issue books.
+              </p>
+              <div className="w-full flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => showToast("Google Login Failed", "error")}
+                  theme="filled_black"
+                  shape="pill"
+                />
+              </div>
+              {loading && <p className="text-xs text-[#FFD59F]/50 animate-pulse">Authenticating...</p>}
+            </>
+          )}
         </div>
       </div>
     </div>

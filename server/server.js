@@ -265,7 +265,8 @@ app.post('/api/auth/register', async (req, res) => {
       mobile,
       displayName: displayName || '',
       passwordHash,
-      isAdmin: !!isAdmin
+      isAdmin: !!isAdmin,
+      isApproved: !!isAdmin
     });
 
     await newUser.save();
@@ -317,9 +318,17 @@ app.post('/api/auth/google', async (req, res) => {
         email,
         displayName: name || '',
         profilePicture: picture || '',
-        isAdmin: !adminExists // First user becomes admin
+        isAdmin: !adminExists, // First user becomes admin
+        isApproved: !adminExists // First user is automatically approved
       });
       await user.save();
+    }
+
+    if (!user.isApproved) {
+      return res.status(403).json({ 
+        code: 'PENDING_APPROVAL', 
+        message: 'Your account registration has been received and is currently under review by our administration team. We appreciate your patience and will grant access upon successful verification.' 
+      });
     }
 
     // Create JWT token
@@ -364,6 +373,13 @@ app.post('/api/auth/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    if (!user.isApproved) {
+      return res.status(403).json({ 
+        code: 'PENDING_APPROVAL', 
+        message: 'Your account registration has been received and is currently under review by our administration team. We appreciate your patience and will grant access upon successful verification.' 
+      });
     }
 
     // Create JWT token
@@ -486,11 +502,25 @@ app.get('/api/admin/users', auth, admin, async (req, res) => {
       profilePicture: u.profilePicture,
       displayName: u.displayName,
       isAdmin: u.isAdmin,
+      isApproved: u.isApproved,
       createdAt: u.createdAt
     }));
     res.json(formattedUsers);
   } catch {
     res.status(500).json({ message: 'Error fetching users' });
+  }
+});
+
+// PUT /api/admin/users/:id/approve
+app.put('/api/admin/users/:id/approve', auth, admin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    user.isApproved = true;
+    await user.save();
+    res.json({ success: true, message: 'User approved' });
+  } catch {
+    res.status(500).json({ message: 'Error approving user' });
   }
 });
 
