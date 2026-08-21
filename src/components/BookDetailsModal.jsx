@@ -68,7 +68,7 @@ export default function BookDetailsModal({
           </div>
         </div>
 
-        <div className="p-4 sm:p-6 bg-[#6a2536]/40 border-t border-[#FFD59F]/15 flex flex-col sm:flex-row gap-3 justify-end sticky bottom-0">
+        <div className="p-4 sm:p-6 bg-[#4E1A27] border-t border-[#FFD59F]/15 flex flex-col sm:flex-row gap-3 justify-end sticky bottom-0 z-10">
           <button
             onClick={toggleFav}
             className="w-full sm:flex-1 bg-transparent hover:bg-[#FFD59F]/10 border border-[#FFD59F] font-bold py-2.5 sm:py-2 px-4 rounded text-xs transition flex items-center justify-center gap-1.5"
