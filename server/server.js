@@ -324,7 +324,7 @@ app.post('/api/auth/google', async (req, res) => {
       await user.save();
     }
 
-    if (!user.isApproved) {
+    if (!user.isApproved && !user.isAdmin) {
       return res.status(403).json({ 
         code: 'PENDING_APPROVAL', 
         message: 'Your account registration has been received and is currently under review by our administration team. We appreciate your patience and will grant access upon successful verification.' 
@@ -375,7 +375,7 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    if (!user.isApproved) {
+    if (!user.isApproved && !user.isAdmin) {
       return res.status(403).json({ 
         code: 'PENDING_APPROVAL', 
         message: 'Your account registration has been received and is currently under review by our administration team. We appreciate your patience and will grant access upon successful verification.' 
