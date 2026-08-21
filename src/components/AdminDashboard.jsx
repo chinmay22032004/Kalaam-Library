@@ -227,7 +227,7 @@ export default function AdminDashboard({
 
   // --- Sub-Renders ---
 
-  const existingGenres = [...new Set(books.map(b => b.genre).filter(Boolean))].sort();
+  const existingGenres = [...new Set(books.map(b => b.genre?.trim().toUpperCase()).filter(Boolean))].sort();
 
   const renderGrid = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 animate-[fadeIn_0.3s_ease-out]">
@@ -491,7 +491,7 @@ export default function AdminDashboard({
                       setIsEditNewGenre(true);
                       setEditBookForm({ ...editBookForm, genre: "" });
                     } else {
-                      setEditBookForm({ ...editBookForm, genre: e.target.value });
+                      setEditBookForm({ ...editBookForm, genre: e.target.value.toUpperCase() });
                     }
                   }}
                   className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none"
@@ -505,7 +505,7 @@ export default function AdminDashboard({
                   <input 
                     required 
                     value={editBookForm.genre} 
-                    onChange={e => setEditBookForm({...editBookForm, genre: e.target.value})} 
+                    onChange={e => setEditBookForm({...editBookForm, genre: e.target.value.toUpperCase()})} 
                     placeholder="Type new genre..."
                     className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" 
                   />
@@ -570,7 +570,7 @@ export default function AdminDashboard({
                       setIsNewGenre(true);
                       setBookForm({ ...bookForm, genre: "" });
                     } else {
-                      setBookForm({ ...bookForm, genre: e.target.value });
+                      setBookForm({ ...bookForm, genre: e.target.value.toUpperCase() });
                     }
                   }}
                   className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none"
@@ -584,7 +584,7 @@ export default function AdminDashboard({
                   <input 
                     required 
                     value={bookForm.genre} 
-                    onChange={e => setBookForm({...bookForm, genre: e.target.value})} 
+                    onChange={e => setBookForm({...bookForm, genre: e.target.value.toUpperCase()})} 
                     placeholder="Type new genre..."
                     className="w-full bg-[#3b131b] border border-[#FFD59F]/20 rounded p-3 text-sm text-[#FFD59F] focus:border-[#FFD59F] outline-none" 
                   />

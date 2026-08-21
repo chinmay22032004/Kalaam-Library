@@ -49,7 +49,7 @@ export default function BookDetailsModal({
             <div className="text-center sm:text-left w-full">
               <div className="flex flex-wrap justify-center sm:justify-start gap-2 mb-2 sm:mb-3">
                 <span className="text-[10px] uppercase font-bold tracking-wider bg-[#FFD59F]/15 px-2.5 py-1 rounded">
-                  {book.genre}
+                  {book.genre.toUpperCase()}
                 </span>
                 <span className="text-[10px] uppercase font-bold tracking-wider bg-[#FFD59F]/15 px-2.5 py-1 rounded text-green-300">
                   {book.language}

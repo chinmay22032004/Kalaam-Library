@@ -187,7 +187,7 @@ export default function App() {
       books.filter(
         (b) =>
           b.language === "english" &&
-          (selectedGenre === "" || b.genre.trim().toLowerCase() === selectedGenre.toLowerCase()) &&
+          (selectedGenre === "" || b.genre.trim().toUpperCase() === selectedGenre) &&
           (b.title.toLowerCase().includes(searchQuery.english.toLowerCase()) ||
             b.author.toLowerCase().includes(searchQuery.english.toLowerCase())),
       ),
@@ -198,7 +198,7 @@ export default function App() {
       books.filter(
         (b) =>
           b.language === "hindi" &&
-          (selectedGenre === "" || b.genre.trim().toLowerCase() === selectedGenre.toLowerCase()) &&
+          (selectedGenre === "" || b.genre.trim().toUpperCase() === selectedGenre) &&
           (b.title.toLowerCase().includes(searchQuery.hindi.toLowerCase()) ||
             b.author.toLowerCase().includes(searchQuery.hindi.toLowerCase())),
       ),
@@ -212,12 +212,11 @@ export default function App() {
   const availableGenres = useMemo(() => {
     if (activeTab !== "english" && activeTab !== "hindi") return [];
     const filteredBooks = books.filter(b => b.language === activeTab);
-    const genres = filteredBooks.map(b => b.genre.trim());
+    const genres = filteredBooks.map(b => b.genre.trim().toUpperCase());
     const uniqueGenresMap = new Map();
     genres.forEach(g => {
-      const lower = g.toLowerCase();
-      if (!uniqueGenresMap.has(lower)) {
-        uniqueGenresMap.set(lower, g);
+      if (!uniqueGenresMap.has(g)) {
+        uniqueGenresMap.set(g, g);
       }
     });
     return Array.from(uniqueGenresMap.values()).sort();
@@ -659,7 +658,7 @@ export default function App() {
                   >
                     <option className="bg-[#4E1A27] text-[#FFD59F]" value="">All Genres</option>
                     {availableGenres.map((genre, idx) => (
-                      <option className="bg-[#4E1A27] text-[#FFD59F]" key={idx} value={genre.toLowerCase()}>{genre}</option>
+                      <option className="bg-[#4E1A27] text-[#FFD59F]" key={idx} value={genre}>{genre}</option>
                     ))}
                   </select>
                   <div className="absolute right-3 top-3 sm:top-2.5 pointer-events-none text-[#FFD59F]/60 text-xs">▼</div>
@@ -748,7 +747,7 @@ export default function App() {
                     <div className="space-y-3">
                       <div className="flex justify-between items-start">
                         <span className="text-[9px] sm:text-[10px] uppercase font-bold px-2 py-1 bg-[#FFD59F]/10 rounded">
-                          {book.genre}
+                          {book.genre.toUpperCase()}
                         </span>
                         <button
                           onClick={(e) => toggleFavorite(book.id, e)}
